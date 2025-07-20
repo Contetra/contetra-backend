@@ -1,216 +1,140 @@
-import { pgTable, uuid, varchar, integer, timestamp, index, boolean, jsonb, pgEnum, date } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  timestamp,
+  index,
+  integer,
+} from 'drizzle-orm/pg-core';
+import { bytea } from './bytea';
 
-// User Schema
 export const userTable = pgTable(
   'user',
   {
-    uid: uuid('uid').primaryKey().defaultRandom(),
-    full_name: varchar('full_name', { length: 255 }).notNull(),
-    mobile_number: varchar('mobile_number', { length: 10 }).notNull().unique(),
-    email: varchar('email', { length: 255 }).unique(),
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', { length: 255 }).notNull(),
+    user_name: varchar('user_name', { length: 255 }).notNull(),
     password: varchar('password', { length: 255 }).notNull(),
-    pin: integer().notNull(),
-    created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-  },
-  (table) => {
-    return {
-      uidIndex: index('uidIndex').on(table.uid),
-      pinIndex: index('pinIndex').on(table.pin),
-    };
-  }
-);
-
-export const userDetails = pgTable(
-  'user_details',
-  {
-    userId: uuid('userId')
-      .references(() => userTable.uid)
+    two_fa_status: varchar('2fa_status', {
+      enum: ['enabled', 'disabled', 'not_allowed'],
+      length: 50,
+    })
+      .notNull()
+      .default('disabled'),
+    email: varchar('email', { length: 255 }).notNull().unique(),
+    profile_picture: bytea('profile_picture'),
+    profile_picture_url: varchar('profile_picture_url', { length: 255 }),
+    last_login: timestamp('last_login', { withTimezone: true })
+      .defaultNow()
       .notNull(),
-    id: uuid('id').primaryKey().defaultRandom(),
-    wallet_balance: integer(),
-    betting: boolean().notNull().default(false),
-    transfer: boolean().notNull().default(false),
-    active: boolean().notNull().default(false),
-    bank_name: varchar('bank_name', { length: 100 }),
-    account_holder_name: varchar('account_holder_name', { length: 100 }),
-    account_number: integer(),
-    ifsc_code: varchar('ifsc_code', { length: 20 }),
-    phone_pay_no: varchar('phone_pay_no', { length: 15 }),
-    google_pay_no: varchar('google_pay_no', { length: 15 }),
-    paytm_pay_no: varchar('paytm_pay_no', { length: 15 }),
-    created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-  },
-  (table) => {
-    return {
-      idIndex: index('idIndex').on(table.id),
-    };
-  }
-);
-
-// Admin Schema
-export const adminTable = pgTable(
-  'admin',
-  {
-    aid: uuid('aid').primaryKey().defaultRandom(),
-    mobile_number: varchar('mobile_number', { length: 10 }).unique(),
-    email: varchar('email', { length: 255 }).unique(),
-    password: varchar('password', { length: 255 }).notNull(),
-    whatsapp_number: varchar('whatsapp_number', { length: 10 }),
-    min_withdrwal_rate: integer(),
-    max_withdrwal_rate: integer(),
-    min_transfer: integer(),
-    max_transfer: integer(),
-    account_holder_name: varchar('account_holder_name', { length: 255 }),
-    account_number: varchar('account_number', { length: 20 }),
-    ifsc_code: varchar('ifsc_code', { length: 255 }),
-    txn_upi_id: varchar('txn_upi_id', { length: 255 }),
-    created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-  },
-  (table) => {
-    return {
-      aidIndex: index('aidIndex').on(table.aid),
-    };
-  }
-);
-
-// Market Management
-export const market = pgTable(
-  'market',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    market_name: varchar('market_name', { length: 100 }).notNull(),
-    market_time: jsonb(),
-    market_status: boolean().notNull().default(true),
-    created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-  },
-  (table) => {
-    return {
-      idMIndex: index('idMIndex').on(table.id),
-    };
-  }
-);
-
-export const games = pgTable(
-  'games',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    game_name: varchar('game_name', { length: 100 }).notNull(),
-    min_game_amount: integer().notNull(),
-    max_game_amount: integer().notNull(),
-    game_status: boolean().notNull().default(true),
-    created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-  },
-  (table) => {
-    return {
-      idGIndex: index('idGIndex').on(table.id),
-    };
-  }
-);
-
-export const userBids = pgTable(
-  'user_bids',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('userId')
-      .references(() => userTable.uid)
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
       .notNull(),
-    marketId: uuid('marketId')
-      .references(() => market.id)
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
       .notNull(),
-    gameId: uuid('gameId')
-      .references(() => games.id)
-      .notNull(),
-    bid_number: integer().notNull(),
-    bid_amount: integer().notNull(),
-    bid_type: varchar('bid_type', { length: 25 }).notNull(),
-    created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => {
     return {
-      idUbIndex: index('idUbIndex').on(table.id),
+      userIdIndex: index('userIdIndex').on(table.id),
+      userEmailIndex: index('userEmailIndex').on(table.email),
     };
-  }
+  },
 );
 
-export const winData = pgTable(
-  'win_data',
+export const rolesTable = pgTable('roles', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 50 }).notNull(),
+});
+
+export const userRolesTable = pgTable('user_roles', {
+  userId: uuid('userId')
+    .references(() => userTable.id)
+    .notNull(),
+  roleId: uuid('roleId')
+    .references(() => rolesTable.id)
+    .notNull(),
+});
+
+export const pageTable = pgTable('page', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 50 }).notNull(),
+  slug: varchar('slug', { length: 50 }).notNull().unique(),
+});
+
+export const eBooksTable = pgTable('e_books', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  title: varchar('title', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 255 }).notNull().unique(),
+  image: bytea('image'),
+  image_url: varchar('image_url', { length: 255 }),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const metaDataTable = pgTable('meta_data', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  postId: uuid('postId').references(() => postsTable.id),
+  pageId: uuid('pageId').references(() => pageTable.id),
+  eBookId: uuid('eBookId').references(() => eBooksTable.id),
+  title: varchar('title', { length: 255 }),
+  description: varchar('description', { length: 1000 }),
+  keywords: varchar('keywords', { length: 500 }),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const categoriesTable = pgTable('categories', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 50 }).notNull(),
+  slug: varchar('slug', { length: 50 }).notNull().unique(),
+  description: varchar('description', { length: 500 }),
+  level: integer('level').default(0).notNull(),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const postsCategoriesTable = pgTable('posts_categories', {
+  postId: uuid('postId')
+    .references(() => postsTable.id)
+    .notNull(),
+  categoryId: uuid('categoryId')
+    .references(() => categoriesTable.id)
+    .notNull(),
+  parentCategoryId: uuid('parentCategoryId')
+    .references(() => categoriesTable.id)
+    .notNull(),
+});
+
+export const postsTable = pgTable(
+  'blog',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    marketId: uuid('marketId')
-      .references(() => market.id)
+    title: varchar('title', { length: 255 }).notNull(),
+    slug: varchar('slug', { length: 255 }).notNull().unique(),
+    content: varchar('content', { length: 1000 }).notNull(),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
       .notNull(),
-    gameId: uuid('gameId')
-      .references(() => games.id)
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
       .notNull(),
-    bid_type: varchar('bid_type', { length: 25 }).notNull(),
-    result_date: date('result_date').notNull(),
-    win_number: integer().notNull(),
-    money_settled: boolean().default(false).notNull(),
-    created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => {
     return {
-      idWinIndex: index('idWinIndex').on(table.id),
+      titleIndex: index('titleIndex').on(table.title),
     };
-  }
-);
-
-// Wallet Management
-export const transactionStatusEnum = pgEnum('transaction_status', ['Approved', 'Rejected', 'Pending']);
-export const transactionTypesEnum = pgEnum('transaction_types', [
-  'Money add request',
-  'Money withdraw request',
-  'Bid Placed',
-  'Winnings',
-]);
-
-export const userTransactions = pgTable(
-  'user_transactions',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('userId')
-      .references(() => userTable.uid)
-      .notNull(),
-    marketId: uuid('marketId').references(() => market.id),
-    gameId: uuid('gameId').references(() => games.id),
-    txn_id: varchar('txn_id', { length: 255 }).unique().notNull(),
-    txn_type: transactionTypesEnum('txn_type').notNull(),
-    amount: integer().notNull(),
-    status: transactionStatusEnum('status').notNull().default('Pending'),
-    created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
-  (table) => {
-    return {
-      idUtIndex: index('idUtIndex').on(table.id),
-    };
-  }
-);
-
-// Game Rates
-
-export const game_rates = pgTable(
-  'game_rates',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    game_id: uuid('game_id')
-      .references(() => games.id)
-      .notNull(),
-    min_ratio: integer().notNull(),
-    max_ratio: integer().notNull(),
-    created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-  },
-  (table) => {
-    return {
-      idGrIndex: index('idGrIndex').on(table.id),
-    };
-  }
 );
