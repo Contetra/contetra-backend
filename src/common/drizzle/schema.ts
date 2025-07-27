@@ -62,7 +62,7 @@ export const pageTable = pgTable('page', {
   slug: varchar('slug', { length: 50 }).notNull().unique(),
 });
 
-export const eBooksTable = pgTable('e_books', {
+export const eBooksTable = pgTable('ebooks', {
   id: uuid('id').primaryKey().defaultRandom(),
   title: varchar('title', { length: 255 }).notNull(),
   slug: varchar('slug', { length: 255 }).notNull().unique(),
@@ -75,6 +75,27 @@ export const eBooksTable = pgTable('e_books', {
     .defaultNow()
     .notNull(),
 });
+
+export const postsTable = pgTable(
+  'blog',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    title: varchar('title', { length: 255 }).notNull(),
+    slug: varchar('slug', { length: 255 }).notNull().unique(),
+    content: varchar('content', { length: 1000 }).notNull(),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      titleIndex: index('titleIndex').on(table.title),
+    };
+  },
+);
 
 export const metaDataTable = pgTable('meta_data', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -117,24 +138,3 @@ export const postsCategoriesTable = pgTable('posts_categories', {
     .references(() => categoriesTable.id)
     .notNull(),
 });
-
-export const postsTable = pgTable(
-  'blog',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    title: varchar('title', { length: 255 }).notNull(),
-    slug: varchar('slug', { length: 255 }).notNull().unique(),
-    content: varchar('content', { length: 1000 }).notNull(),
-    created_at: timestamp('created_at', { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-    updated_at: timestamp('updated_at', { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => {
-    return {
-      titleIndex: index('titleIndex').on(table.title),
-    };
-  },
-);
