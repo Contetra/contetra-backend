@@ -4,16 +4,18 @@ import {
   varchar,
   timestamp,
   index,
-  integer,
+  uniqueIndex,
+  text,
+  jsonb,
+  boolean,
 } from 'drizzle-orm/pg-core';
-import { bytea } from './bytea';
 
 export const userTable = pgTable(
   'user',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    name: varchar('name', { length: 255 }).notNull(),
-    user_name: varchar('user_name', { length: 255 }).notNull(),
+    name: varchar('name', { length: 255 }).unique().notNull(),
+    user_name: varchar('user_name', { length: 255 }).notNull().unique(),
     password: varchar('password', { length: 255 }).notNull(),
     two_fa_status: varchar('2fa_status', {
       enum: ['enabled', 'disabled', 'not_allowed'],
@@ -22,7 +24,6 @@ export const userTable = pgTable(
       .notNull()
       .default('disabled'),
     email: varchar('email', { length: 255 }).notNull().unique(),
-    profile_picture: bytea('profile_picture'),
     profile_picture_url: varchar('profile_picture_url', { length: 255 }),
     last_login: timestamp('last_login', { withTimezone: true })
       .defaultNow()
@@ -42,32 +43,76 @@ export const userTable = pgTable(
   },
 );
 
+export const userDetailsTable = pgTable(
+  'user_details',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    user_id: uuid('user_id')
+      .references(() => userTable.id)
+      .notNull(),
+    department: varchar('department', { length: 100 }).notNull(),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      userDetailsIdIndex: index('userDetailsIdIndex').on(table.id),
+    };
+  },
+);
+
 export const rolesTable = pgTable('roles', {
   id: uuid('id').primaryKey().defaultRandom(),
-  name: varchar('name', { length: 50 }).notNull(),
+  name: varchar('name', { length: 50 }).unique().notNull(),
+  description: varchar('description', { length: 255 }).notNull(),
 });
 
-export const userRolesTable = pgTable('user_roles', {
-  userId: uuid('userId')
-    .references(() => userTable.id)
-    .notNull(),
-  roleId: uuid('roleId')
-    .references(() => rolesTable.id)
-    .notNull(),
-});
+export const userRolesTable = pgTable(
+  'user_roles',
+  {
+    user_id: uuid('user_id')
+      .references(() => userTable.id)
+      .notNull(),
+    role_id: uuid('role_id')
+      .references(() => rolesTable.id)
+      .notNull(),
+  },
+  (table) => ({
+    uniqueUserRole: uniqueIndex('unique_user_role').on(
+      table.user_id,
+      table.role_id,
+    ),
+  }),
+);
 
 export const pageTable = pgTable('page', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 50 }).notNull(),
   slug: varchar('slug', { length: 50 }).notNull().unique(),
+  created_by: uuid('created_by')
+    .references(() => userTable.id)
+    .notNull(),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const eBooksTable = pgTable('ebooks', {
   id: uuid('id').primaryKey().defaultRandom(),
   title: varchar('title', { length: 255 }).notNull(),
   slug: varchar('slug', { length: 255 }).notNull().unique(),
-  image: bytea('image'),
+  created_by: uuid('created_by')
+    .references(() => userTable.id)
+    .notNull(),
   image_url: varchar('image_url', { length: 255 }),
+  attachment_url: varchar('attachment_url', { length: 255 }),
   created_at: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -77,12 +122,23 @@ export const eBooksTable = pgTable('ebooks', {
 });
 
 export const postsTable = pgTable(
-  'blog',
+  'posts',
   {
     id: uuid('id').primaryKey().defaultRandom(),
     title: varchar('title', { length: 255 }).notNull(),
     slug: varchar('slug', { length: 255 }).notNull().unique(),
-    content: varchar('content', { length: 1000 }).notNull(),
+    created_by: uuid('created_by')
+      .references(() => userTable.id)
+      .notNull(),
+    content: text('content').notNull(),
+    excerpt: text('excerpt'),
+    feature_image_url: text('feature_image_url'),
+    status: varchar('status', {
+      enum: ['Draft', 'Published'],
+      length: 50,
+    })
+      .notNull()
+      .default('Draft'),
     created_at: timestamp('created_at', { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -97,11 +153,37 @@ export const postsTable = pgTable(
   },
 );
 
-export const metaDataTable = pgTable('meta_data', {
+export const postMetaDataTable = pgTable('post_meta_data', {
   id: uuid('id').primaryKey().defaultRandom(),
-  postId: uuid('postId').references(() => postsTable.id),
-  pageId: uuid('pageId').references(() => pageTable.id),
-  eBookId: uuid('eBookId').references(() => eBooksTable.id),
+  post_id: uuid('post_id').references(() => postsTable.id),
+  title: varchar('title', { length: 255 }),
+  description: varchar('description', { length: 1000 }),
+  keywords: varchar('keywords', { length: 500 }),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const pageMetaDataTable = pgTable('page_meta_data', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  page_id: uuid('page_id').references(() => pageTable.id),
+  title: varchar('title', { length: 255 }),
+  description: varchar('description', { length: 1000 }),
+  keywords: varchar('keywords', { length: 500 }),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const eBookMetaDataTable = pgTable('eBook_meta_data', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  eBook_id: uuid('eBook_id').references(() => eBooksTable.id),
   title: varchar('title', { length: 255 }),
   description: varchar('description', { length: 1000 }),
   keywords: varchar('keywords', { length: 500 }),
@@ -115,10 +197,34 @@ export const metaDataTable = pgTable('meta_data', {
 
 export const categoriesTable = pgTable('categories', {
   id: uuid('id').primaryKey().defaultRandom(),
-  name: varchar('name', { length: 50 }).notNull(),
+  name: varchar('name', { length: 50 }).notNull().unique(),
   slug: varchar('slug', { length: 50 }).notNull().unique(),
   description: varchar('description', { length: 500 }),
-  level: integer('level').default(0).notNull(),
+  status: varchar('status', {
+    enum: ['Draft', 'Published'],
+    length: 50,
+  })
+    .notNull()
+    .default('Published'),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const authorTable = pgTable('authors', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  author_id: uuid('author_id')
+    .references(() => userTable.id)
+    .notNull(),
+  role: varchar('role', {
+    enum: ['User', 'Author'],
+    length: 50,
+  })
+    .notNull()
+    .default('Author'),
   created_at: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -128,13 +234,130 @@ export const categoriesTable = pgTable('categories', {
 });
 
 export const postsCategoriesTable = pgTable('posts_categories', {
-  postId: uuid('postId')
+  post_id: uuid('post_id')
     .references(() => postsTable.id)
     .notNull(),
-  categoryId: uuid('categoryId')
+  category_id: uuid('category_id')
     .references(() => categoriesTable.id)
     .notNull(),
-  parentCategoryId: uuid('parentCategoryId')
-    .references(() => categoriesTable.id)
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const postsAuthorsTable = pgTable('posts_authors', {
+  post_id: uuid('post_id')
+    .references(() => postsTable.id)
+    .notNull(),
+  author_id: uuid('author_id')
+    .references(() => authorTable.id)
+    .notNull(),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const tagsTable = pgTable('tags', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 50 }).notNull().unique(),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const postsTagsTable = pgTable('posts_tags', {
+  post_id: uuid('post_id')
+    .references(() => postsTable.id)
+    .notNull(),
+  tag_id: uuid('tag_id')
+    .references(() => tagsTable.id)
+    .notNull(),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const userAttributesTable = pgTable('user_attributes', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  user_id: uuid('user_id')
+    .references(() => userTable.id)
+    .notNull(),
+  key: varchar('key', { length: 100 }).notNull(), // e.g., "department", "region", "job_title"
+  value: varchar('value', { length: 255 }).notNull(), // e.g., "marketing", "US", "editor"
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const policiesTable = pgTable('policies', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 100 }).notNull(),
+  description: text('description'),
+  effect: varchar('effect', { enum: ['allow', 'deny'], length: 10 }).notNull(),
+  action: varchar('action', { length: 100 }).notNull(), // e.g., "read", "edit", "delete", "view_button"
+  resource_type: varchar('resource_type', { length: 50 }).notNull(), // e.g., "page", "post"
+  condition: text('condition').notNull(), // JSON logic, e.g. {"user.department": "marketing", "resource.status": "published"}
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const actionsTable = pgTable('actions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 100 }).notNull().unique(), // "view", "edit", "delete", "download"
+  description: text('description'),
+});
+
+export const resourceTypesTable = pgTable('resource_types', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 100 }).notNull().unique(), // "page", "post", "email"
+  description: text('description'),
+});
+
+export const policyBindingsTable = pgTable('policy_bindings', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  policy_id: uuid('policy_id')
+    .references(() => policiesTable.id)
+    .notNull(),
+  user_id: uuid('user_id').references(() => userTable.id), // optional
+  resource_id: uuid('resource_id'), // optional
+});
+
+export const accessLogsTable = pgTable('access_logs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  user_id: uuid('user_id').references(() => userTable.id),
+  action: varchar('action', { length: 100 }).notNull(),
+  resource_type: varchar('resource_type', { length: 50 }).notNull(),
+  resource_id: uuid('resource_id'),
+  decision: varchar('decision', {
+    enum: ['allow', 'deny'],
+    length: 10,
+  }).notNull(),
+  reason: text('reason'), // e.g. "user.department=marketing matched policy P1"
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const emails = pgTable('emails', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  type: text('type').notNull(),
+  sent_to: text('sent_to').notNull(),
+  email_sent: boolean('email_sent').default(false).notNull(),
+  payload: jsonb('payload').$type<Record<string, unknown>>(),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
     .notNull(),
 });
