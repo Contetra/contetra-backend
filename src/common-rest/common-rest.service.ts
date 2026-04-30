@@ -5,6 +5,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   authorTable,
   categoriesTable,
+  formsTable,
   userTable,
 } from 'src/common/drizzle/schema';
 import { eq, or } from 'drizzle-orm';
@@ -69,8 +70,8 @@ export class CommonRestService {
     }
   }
 
-  getAllCategories() {
-    const categories = this.db
+  async getAllCategories() {
+    const categories = await this.db
       .select({
         name: categoriesTable.name,
         category_id: categoriesTable.id,
@@ -79,8 +80,8 @@ export class CommonRestService {
     return categories;
   }
 
-  getAllAuthors() {
-    const authors = this.db
+  async getAllAuthors() {
+    const authors = await this.db
       .select({
         author_id: authorTable.id,
         name: userTable.name,
@@ -96,5 +97,16 @@ export class CommonRestService {
 
   remove(id: number) {
     return `This action removes a #${id} commonRest`;
+  }
+
+  async getForms(formid?: string) {
+    const forms = await this.db
+      .select({
+        id: formsTable.id,
+        form_name: formsTable.form_name,
+      })
+      .from(formsTable)
+      .where(formid ? eq(formsTable.id, formid) : undefined);
+    return forms;
   }
 }

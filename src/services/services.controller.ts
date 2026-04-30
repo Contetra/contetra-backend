@@ -3,6 +3,7 @@ import { ServicesService } from './services.service';
 import {
   CreateServiceDtoTaigasOne,
   CreateServiceDtoTaigasTwo,
+  CreateServiceDtoEisOne,
 } from './dto/create-service.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import { CaptchaProtected } from 'src/common/decorators/captcha-protected.decorator';
@@ -23,5 +24,12 @@ export class ServicesController {
   @CaptchaProtected()
   taigasTwo(@Body() createServiceDtoTaigasTwo: CreateServiceDtoTaigasTwo) {
     return this.servicesService.taigasTwo(createServiceDtoTaigasTwo);
+  }
+
+  @Post('eisOne')
+  @Public()
+  @CaptchaProtected()
+  eisOne(@Body() createServiceDtoEisOne: CreateServiceDtoEisOne) {
+    return this.servicesService.eisOne(createServiceDtoEisOne);
   }
 }

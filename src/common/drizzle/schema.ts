@@ -351,9 +351,36 @@ export const accessLogsTable = pgTable('access_logs', {
     .notNull(),
 });
 
-export const emails = pgTable('emails', {
+export const formTypesTable = pgTable('form_types', {
   id: uuid('id').primaryKey().defaultRandom(),
-  type: text('type').notNull(),
+  name: varchar('name', { length: 255 }).notNull().unique(),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const formsTable = pgTable('forms', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  form_name: varchar('form_name', { length: 255 }).notNull(),
+  form_type_id: uuid('form_type_id')
+    .references(() => formTypesTable.id)
+    .notNull(),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const formSubmissionsTable = pgTable('form_submissions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  form_id: uuid('form_id')
+    .references(() => formsTable.id)
+    .notNull(),
   sent_to: text('sent_to').notNull(),
   email_sent: boolean('email_sent').default(false).notNull(),
   payload: jsonb('payload').$type<Record<string, unknown>>(),

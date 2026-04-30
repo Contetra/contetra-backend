@@ -10,7 +10,7 @@ import {
 } from './dto/create-ebook.dto';
 import { DRIZZLE } from 'src/common/drizzle/drizzle.module';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { emails } from 'src/common/drizzle/schema';
+import { formSubmissionsTable } from 'src/common/drizzle/schema';
 import { EMAIL_RECIPIENTS } from 'src/email/email-recipients';
 import { EmailService } from 'src/email/email.service';
 import { EmailTemplateService } from 'src/email/email-template.service';
@@ -34,9 +34,9 @@ export class EbookService {
       );
 
       const [inserted] = await this.db
-        .insert(emails)
+        .insert(formSubmissionsTable)
         .values({
-          type: 'business-insights-into-ifrs-16',
+          form_id: 'business-insights-into-ifrs-16',
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookBiiis.full_name,
@@ -45,7 +45,7 @@ export class EbookService {
             company: createEbookBiiis.company,
           },
         })
-        .returning({ id: emails.id });
+        .returning({ id: formSubmissionsTable.id });
 
       if (!inserted) {
         throw new Error('Insertion failed');
@@ -69,9 +69,9 @@ export class EbookService {
         })
         .then(async () => {
           await this.db
-            .update(emails)
+            .update(formSubmissionsTable)
             .set({ email_sent: true })
-            .where(eq(emails.id, id));
+            .where(eq(formSubmissionsTable.id, id));
         })
         .catch((err) => {
           console.error('ACTUAL EMAIL ERROR:', err);
@@ -95,9 +95,9 @@ export class EbookService {
       );
 
       const [inserted] = await this.db
-        .insert(emails)
+        .insert(formSubmissionsTable)
         .values({
-          type: 'interview-prep-guide-for-careers-in-financial-reporting',
+          form_id: 'interview-prep-guide-for-careers-in-financial-reporting',
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookIpgfcifr.full_name,
@@ -106,7 +106,7 @@ export class EbookService {
             company: createEbookIpgfcifr.company,
           },
         })
-        .returning({ id: emails.id });
+        .returning({ id: formSubmissionsTable.id });
 
       if (!inserted) {
         throw new Error('Insertion failed');
@@ -132,9 +132,9 @@ export class EbookService {
         })
         .then(async () => {
           await this.db
-            .update(emails)
+            .update(formSubmissionsTable)
             .set({ email_sent: true })
-            .where(eq(emails.id, id));
+            .where(eq(formSubmissionsTable.id, id));
         })
         .catch((err) => {
           console.error('ACTUAL EMAIL ERROR:', err);
@@ -158,9 +158,9 @@ export class EbookService {
       );
 
       const [inserted] = await this.db
-        .insert(emails)
+        .insert(formSubmissionsTable)
         .values({
-          type: 'implementable-ecl-template-for-non-bfsi-sector',
+          form_id: 'implementable-ecl-template-for-non-bfsi-sector',
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookIetfnbs.full_name,
@@ -169,7 +169,7 @@ export class EbookService {
             company: createEbookIetfnbs.company,
           },
         })
-        .returning({ id: emails.id });
+        .returning({ id: formSubmissionsTable.id });
 
       if (!inserted) {
         throw new Error('Insertion failed');
@@ -193,9 +193,9 @@ export class EbookService {
         })
         .then(async () => {
           await this.db
-            .update(emails)
+            .update(formSubmissionsTable)
             .set({ email_sent: true })
-            .where(eq(emails.id, id));
+            .where(eq(formSubmissionsTable.id, id));
         })
         .catch((err) => {
           console.error('ACTUAL EMAIL ERROR:', err);
@@ -219,9 +219,9 @@ export class EbookService {
       );
 
       const [inserted] = await this.db
-        .insert(emails)
+        .insert(formSubmissionsTable)
         .values({
-          type: 'top-20-questions-your-fy-22-23-business-plan-must-answer',
+          form_id: 'top-20-questions-your-fy-22-23-business-plan-must-answer',
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookTtqyfbpa.full_name,
@@ -230,7 +230,7 @@ export class EbookService {
             company: createEbookTtqyfbpa.company,
           },
         })
-        .returning({ id: emails.id });
+        .returning({ id: formSubmissionsTable.id });
 
       if (!inserted) {
         throw new Error('Insertion failed');
@@ -256,9 +256,9 @@ export class EbookService {
         })
         .then(async () => {
           await this.db
-            .update(emails)
+            .update(formSubmissionsTable)
             .set({ email_sent: true })
-            .where(eq(emails.id, id));
+            .where(eq(formSubmissionsTable.id, id));
         })
         .catch((err) => {
           console.error('ACTUAL EMAIL ERROR:', err);
@@ -287,9 +287,10 @@ export class EbookService {
       );
 
       const [inserted] = await this.db
-        .insert(emails)
+        .insert(formSubmissionsTable)
         .values({
-          type: 'turbocharge-your-finance-function-through-offshore-accounting',
+          form_id:
+            'turbocharge-your-finance-function-through-offshore-accounting',
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookTyfftoa.full_name,
@@ -300,7 +301,7 @@ export class EbookService {
             designation: createEbookTyfftoa.designation,
           },
         })
-        .returning({ id: emails.id });
+        .returning({ id: formSubmissionsTable.id });
 
       if (!inserted) {
         throw new Error('Insertion failed');
@@ -331,9 +332,9 @@ export class EbookService {
         })
         .then(async () => {
           await this.db
-            .update(emails)
+            .update(formSubmissionsTable)
             .set({ email_sent: true })
-            .where(eq(emails.id, id));
+            .where(eq(formSubmissionsTable.id, id));
         })
         .catch((err) => {
           console.error('ACTUAL EMAIL ERROR:', err);
@@ -377,9 +378,9 @@ export class EbookService {
       );
 
       const [inserted] = await this.db
-        .insert(emails)
+        .insert(formSubmissionsTable)
         .values({
-          type: 'maximize-profitability-choose-the-right-erp',
+          form_id: 'maximize-profitability-choose-the-right-erp',
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookDecg.full_name,
@@ -390,7 +391,7 @@ export class EbookService {
             annual_turnover: createEbookDecg.annual_turnover,
           },
         })
-        .returning({ id: emails.id });
+        .returning({ id: formSubmissionsTable.id });
 
       if (!inserted) {
         throw new Error('Insertion failed');
@@ -416,9 +417,9 @@ export class EbookService {
         })
         .then(async () => {
           await this.db
-            .update(emails)
+            .update(formSubmissionsTable)
             .set({ email_sent: true })
-            .where(eq(emails.id, id));
+            .where(eq(formSubmissionsTable.id, id));
         })
         .catch((err) => {
           console.error('ACTUAL EMAIL ERROR:', err);
@@ -443,9 +444,9 @@ export class EbookService {
       );
 
       const [inserted] = await this.db
-        .insert(emails)
+        .insert(formSubmissionsTable)
         .values({
-          type: 'strategic-business-budget-guide',
+          form_id: 'strategic-business-budget-guide',
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookSbbg.full_name,
@@ -458,7 +459,7 @@ export class EbookService {
             currency: createEbookSbbg.currency,
           },
         })
-        .returning({ id: emails.id });
+        .returning({ id: formSubmissionsTable.id });
 
       if (!inserted) {
         throw new Error('Insertion failed');
@@ -486,9 +487,9 @@ export class EbookService {
         })
         .then(async () => {
           await this.db
-            .update(emails)
+            .update(formSubmissionsTable)
             .set({ email_sent: true })
-            .where(eq(emails.id, id));
+            .where(eq(formSubmissionsTable.id, id));
         })
         .catch((err) => {
           console.error('ACTUAL EMAIL ERROR:', err);

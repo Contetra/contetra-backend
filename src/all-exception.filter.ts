@@ -41,7 +41,17 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       myResponseObj.response = exception.message.replaceAll(/\n/g, ' ');
     } else {
       myResponseObj.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-      myResponseObj.response = 'Internal Server Error';
+
+      if (exception instanceof Error) {
+        myResponseObj.response = exception.message;
+
+        console.error('ERROR:', exception.message);
+        console.error('STACK:', exception.stack);
+      } else {
+        myResponseObj.response = 'Internal Server Error';
+
+        console.error('UNKNOWN ERROR:', exception);
+      }
     }
 
     response.status(myResponseObj.statusCode).json(myResponseObj);

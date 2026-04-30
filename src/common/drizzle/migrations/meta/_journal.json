@@ -85,6 +85,20 @@
       "when": 1773767584715,
       "tag": "0011_safe_nighthawk",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1776847411764,
+      "tag": "0012_overconfident_toad",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1776847496629,
+      "tag": "0013_open_ravenous",
+      "breakpoints": true
     }
   ]
 }
