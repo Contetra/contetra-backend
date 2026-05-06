@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
+  IsUUID,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -27,6 +28,11 @@ export class CreateEbookBiiis {
   @IsNotEmpty()
   @MinLength(2)
   company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
 }
 
 export class CreateEbookIpgfcifr {
@@ -50,6 +56,11 @@ export class CreateEbookIpgfcifr {
   @IsNotEmpty()
   @MinLength(2)
   company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
 }
 
 export class CreateEbookIetfnbs {

@@ -1,6 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  CreateServiceDtoCtOne,
   CreateServiceDtoEisOne,
+  CreateServiceDtoEisTwo,
+  CreateServiceDtoIr,
+  CreateServiceDtoOas,
+  CreateServiceDtoOasTwo,
+  CreateServiceDtoSt,
   CreateServiceDtoTaigasOne,
   CreateServiceDtoTaigasTwo,
 } from './dto/create-service.dto';
@@ -225,7 +231,7 @@ export class ServicesService {
     }
   }
 
-  async eisTwo(createServiceDtoEisOne: CreateServiceDtoEisOne) {
+  async eisTwo(createServiceDtoEisTwo: CreateServiceDtoEisTwo) {
     try {
       const link = this.bunnyService.generateSignedUrl(
         '/services/ERP-Brochure.pdf',
@@ -235,19 +241,17 @@ export class ServicesService {
       const [inserted] = await this.db
         .insert(formSubmissionsTable)
         .values({
-          form_id: createServiceDtoEisOne.form_id,
+          form_id: createServiceDtoEisTwo.form_id,
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
-            name: createServiceDtoEisOne.name,
-            work_email: createServiceDtoEisOne.work_email,
-            company: createServiceDtoEisOne.company,
-            designation: createServiceDtoEisOne.designation,
-            industry: createServiceDtoEisOne.industry,
-            phone_number: createServiceDtoEisOne.phone_number,
-            accounting_system: createServiceDtoEisOne.accounting_system,
-            help_topic: createServiceDtoEisOne.help_topic,
-            turnover: createServiceDtoEisOne.turnover,
-            currency: createServiceDtoEisOne.currency,
+            name: createServiceDtoEisTwo.name,
+            work_email: createServiceDtoEisTwo.work_email,
+            company: createServiceDtoEisTwo.company,
+            phone_number: createServiceDtoEisTwo.phone_number,
+            accounting_system: createServiceDtoEisTwo.accounting_system,
+            help_topic: createServiceDtoEisTwo.help_topic,
+            turnover: createServiceDtoEisTwo.turnover,
+            currency: createServiceDtoEisTwo.currency,
           },
         })
         .returning({ id: formSubmissionsTable.id });
@@ -258,17 +262,15 @@ export class ServicesService {
 
       const id = inserted.id;
 
-      const html = this.templateService.render('eis_service_template_one', {
-        name: createServiceDtoEisOne.name,
-        work_email: createServiceDtoEisOne.work_email,
-        company: createServiceDtoEisOne.company,
-        designation: createServiceDtoEisOne.designation,
-        industry: createServiceDtoEisOne.industry,
-        phone_number: createServiceDtoEisOne.phone_number,
-        accounting_system: createServiceDtoEisOne.accounting_system,
-        help_topic: createServiceDtoEisOne.help_topic,
-        turnover: createServiceDtoEisOne.turnover,
-        currency: createServiceDtoEisOne.currency,
+      const html = this.templateService.render('eis_service_template_two', {
+        name: createServiceDtoEisTwo.name,
+        work_email: createServiceDtoEisTwo.work_email,
+        company: createServiceDtoEisTwo.company,
+        phone_number: createServiceDtoEisTwo.phone_number,
+        accounting_system: createServiceDtoEisTwo.accounting_system,
+        help_topic: createServiceDtoEisTwo.help_topic,
+        turnover: createServiceDtoEisTwo.turnover,
+        currency: createServiceDtoEisTwo.currency,
         service_name: 'ERP Implementation Solutions',
       });
 
@@ -291,6 +293,343 @@ export class ServicesService {
       return {
         message: 'Message sent successfully!',
         link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async st(createServiceDtoSt: CreateServiceDtoSt) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/services/Client-Name-Strike-off-Companies-Report-2.xlsx',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createServiceDtoSt.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            name: createServiceDtoSt.name,
+            work_email: createServiceDtoSt.work_email,
+            phone_number: createServiceDtoSt.phone_number,
+            company_name: createServiceDtoSt.company_name,
+            designation: createServiceDtoSt.designation,
+            state: createServiceDtoSt.state,
+            city: createServiceDtoSt.city,
+            hear_about: createServiceDtoSt.hear_about,
+            list_items: createServiceDtoSt.list_items,
+            message: createServiceDtoSt.message,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('st_service_template', {
+        name: createServiceDtoSt.name,
+        work_email: createServiceDtoSt.work_email,
+        phone_number: createServiceDtoSt.phone_number,
+        company_name: createServiceDtoSt.company_name,
+        designation: createServiceDtoSt.designation,
+        state: createServiceDtoSt.state,
+        city: createServiceDtoSt.city,
+        hear_about: createServiceDtoSt.hear_about,
+        list_items: createServiceDtoSt.list_items,
+        message: createServiceDtoSt.message,
+        service_name: 'Strike That',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: 'Strike That',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async oasOne(createServiceDtoOas: CreateServiceDtoOas) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/services/Offshore-Accounting-Material.zip',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createServiceDtoOas.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            first_name: createServiceDtoOas.first_name,
+            last_name: createServiceDtoOas.last_name,
+            work_email: createServiceDtoOas.work_email,
+            phone_number: createServiceDtoOas.phone_number,
+            company: createServiceDtoOas.company,
+            designation: createServiceDtoOas.designation,
+            city: createServiceDtoOas.city,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('oas_service_template', {
+        first_name: createServiceDtoOas.first_name,
+        last_name: createServiceDtoOas.last_name,
+        work_email: createServiceDtoOas.work_email,
+        phone_number: createServiceDtoOas.phone_number,
+        company: createServiceDtoOas.company,
+        designation: createServiceDtoOas.designation,
+        city: createServiceDtoOas.city,
+        service_name: 'Offshore Accounting Services',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: 'Offshore Accounting Services',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async oasTwo(createServiceDtoOasTwo: CreateServiceDtoOasTwo) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/services/Offshore-Accounting-Material.zip',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createServiceDtoOasTwo.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            name: createServiceDtoOasTwo.name,
+            company: createServiceDtoOasTwo.company,
+            help_with: createServiceDtoOasTwo.help_with,
+            phone_number: createServiceDtoOasTwo.phone_number,
+            email: createServiceDtoOasTwo.email,
+            designation: createServiceDtoOasTwo.designation,
+            city: createServiceDtoOasTwo.city,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('oas_service_template_two', {
+        name: createServiceDtoOasTwo.name,
+        company: createServiceDtoOasTwo.company,
+        help_with: createServiceDtoOasTwo.help_with,
+        phone_number: createServiceDtoOasTwo.phone_number,
+        email: createServiceDtoOasTwo.email,
+        designation: createServiceDtoOasTwo.designation,
+        city: createServiceDtoOasTwo.city,
+        service_name: 'Offshore Accounting Services',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: 'Offshore Accounting Services',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async ctOne(createServiceDtoCtOne: CreateServiceDtoCtOne) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/services/Training-Lead-magnet.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createServiceDtoCtOne.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createServiceDtoCtOne.full_name,
+            work_email: createServiceDtoCtOne.work_email,
+            company: createServiceDtoCtOne.company,
+            designation: createServiceDtoCtOne.designation,
+            phone_number: createServiceDtoCtOne.phone_number,
+            training_mode: createServiceDtoCtOne.training_mode,
+            help_topic: createServiceDtoCtOne.help_topic,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('ct_service_template_one', {
+        full_name: createServiceDtoCtOne.full_name,
+        work_email: createServiceDtoCtOne.work_email,
+        company: createServiceDtoCtOne.company,
+        designation: createServiceDtoCtOne.designation,
+        phone_number: createServiceDtoCtOne.phone_number,
+        training_mode: createServiceDtoCtOne.training_mode,
+        help_topic: createServiceDtoCtOne.help_topic,
+        service_name: 'Contetra Training',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: 'Contetra Training',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async ir(createServiceDtoIr: CreateServiceDtoIr) {
+    try {
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createServiceDtoIr.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            first_name: createServiceDtoIr.first_name,
+            last_name: createServiceDtoIr.last_name,
+            work_email: createServiceDtoIr.work_email,
+            organization_name: createServiceDtoIr.organization_name,
+            annual_revenue: createServiceDtoIr.annual_revenue,
+            phone_number: createServiceDtoIr.phone_number,
+            help_topic: createServiceDtoIr.help_topic,
+            message: createServiceDtoIr.message,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('ir_service_template_one', {
+        first_name: createServiceDtoIr.first_name,
+        last_name: createServiceDtoIr.last_name,
+        work_email: createServiceDtoIr.work_email,
+        organization_name: createServiceDtoIr.organization_name,
+        annual_revenue: createServiceDtoIr.annual_revenue,
+        phone_number: createServiceDtoIr.phone_number,
+        help_topic: createServiceDtoIr.help_topic,
+        message: createServiceDtoIr.message,
+        service_name: 'IPO Readiness',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: 'IPO Readiness',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
       };
     } catch (error) {
       console.error('Insert failed:', error);
