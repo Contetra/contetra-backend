@@ -1,3 +1,7 @@
 export const EMAIL_RECIPIENTS = {
-  COMMON_CONTETRA: ['shubhams000ni@gmail.com', 'shubham.soni@contetra.com'],
+  COMMON_CONTETRA: [
+    'shubhams000ni@gmail.com',
+    'shubham.soni@contetra.com',
+    'pankaj.sakpal@contetra.com',
+  ],
 };

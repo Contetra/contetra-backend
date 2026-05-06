@@ -136,3 +136,283 @@ export class CreateServiceDtoEisOne {
   @IsUUID()
   form_id!: string;
 }
+export class CreateServiceDtoEisTwo {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  company!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  turnover!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  currency!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  accounting_system!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  phone_number!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  @MinLength(2)
+  work_email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  help_topic!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id!: string;
+}
+export class CreateServiceDtoSt {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  @MinLength(2)
+  work_email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  phone_number!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  company_name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  designation!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  state!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  city!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  hear_about!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  list_items!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  message!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id!: string;
+}
+
+export class CreateServiceDtoOas {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  first_name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  last_name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  @MinLength(2)
+  work_email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  company!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  designation!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  phone_number!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  city!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  form_id!: string;
+}
+
+export class CreateServiceDtoOasTwo {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  company!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  help_with!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  phone_number!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  @MinLength(2)
+  email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  designation!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  city!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id!: string;
+}
+
+export class CreateServiceDtoCtOne {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  full_name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  @MinLength(2)
+  work_email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  company!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  designation!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  training_mode!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  phone_number!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  help_topic!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id!: string;
+}
+export class CreateServiceDtoIr {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  first_name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  last_name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  phone_number!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  @MinLength(2)
+  work_email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  organization_name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  annual_revenue!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  help_topic!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  message!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id!: string;
+}

@@ -36,7 +36,7 @@ export class EbookService {
       const [inserted] = await this.db
         .insert(formSubmissionsTable)
         .values({
-          form_id: 'business-insights-into-ifrs-16',
+          form_id: createEbookBiiis.form_id,
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookBiiis.full_name,
@@ -97,7 +97,7 @@ export class EbookService {
       const [inserted] = await this.db
         .insert(formSubmissionsTable)
         .values({
-          form_id: 'interview-prep-guide-for-careers-in-financial-reporting',
+          form_id: createEbookIpgfcifr.form_id,
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookIpgfcifr.full_name,
