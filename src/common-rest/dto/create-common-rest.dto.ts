@@ -34,3 +34,43 @@ export class CreateAuthors {
   @IsEnum(AuthorRole)
   role: AuthorRole;
 }
+export class CreateContactUs {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  first_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  last_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  work_email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  phone_number: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  designation: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  message: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  form_id: string;
+}

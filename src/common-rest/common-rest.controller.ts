@@ -1,6 +1,10 @@
 import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { CommonRestService } from './common-rest.service';
-import { CreateAuthors, CreateCategories } from './dto/create-common-rest.dto';
+import {
+  CreateAuthors,
+  CreateCategories,
+  CreateContactUs,
+} from './dto/create-common-rest.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('common-rest')
@@ -33,5 +37,11 @@ export class CommonRestController {
   @Public()
   async getForms(@Query('formid') formid?: string) {
     return await this.commonRestService.getForms(formid);
+  }
+
+  @Post('contact-us')
+  @Public()
+  async contactUs(@Body() createContactUs: CreateContactUs) {
+    return this.commonRestService.contactUs(createContactUs);
   }
 }

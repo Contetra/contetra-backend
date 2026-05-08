@@ -84,6 +84,11 @@ export class CreateEbookIetfnbs {
   @IsNotEmpty()
   @MinLength(2)
   company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
 }
 
 export class CreateEbookTtqyfbpa {
@@ -107,6 +112,11 @@ export class CreateEbookTtqyfbpa {
   @IsNotEmpty()
   @MinLength(2)
   company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
 }
 
 export class CreateEbookTyfftoa {
@@ -140,6 +150,11 @@ export class CreateEbookTyfftoa {
   @IsNotEmpty()
   @MinLength(2)
   city: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
 }
 
 export class CreateEbookDecg {
@@ -173,6 +188,11 @@ export class CreateEbookDecg {
   @IsNotEmpty()
   @MinLength(2)
   annual_turnover: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
 }
 
 export class CreateEbookSbbg {
@@ -220,4 +240,528 @@ export class CreateEbookSbbg {
   @IsString()
   @IsNotEmpty()
   currency: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
+}
+
+export class CreateEbookUrgtcss {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  full_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(15)
+  mobile_number: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  designation: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(50)
+  business_industry: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(100)
+  annual_turnover: string;
+
+  @IsString()
+  @IsNotEmpty()
+  currency: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
+}
+
+export class CreateEbookBiiin {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  full_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(15)
+  mobile_number: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  designation: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(50)
+  business_industry: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(100)
+  annual_turnover: string;
+
+  @IsString()
+  @IsNotEmpty()
+  currency: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
+}
+
+export class CreateEbookMcanae {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  full_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(15)
+  mobile_number: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  designation: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(50)
+  business_industry: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(100)
+  annual_turnover: string;
+
+  @IsString()
+  @IsNotEmpty()
+  currency: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
+}
+
+export class CreateEbookYeccfbo {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  full_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(15)
+  mobile_number: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  designation: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(50)
+  business_industry: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(100)
+  annual_turnover: string;
+
+  @IsString()
+  @IsNotEmpty()
+  currency: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
+}
+
+export class CreateEbookBgc {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  full_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(15)
+  mobile_number: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  designation: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(50)
+  business_industry: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(100)
+  annual_turnover: string;
+
+  @IsString()
+  @IsNotEmpty()
+  currency: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
+}
+
+export class CreateEbookEiu {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  full_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(15)
+  mobile_number: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  designation: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(50)
+  business_industry: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(100)
+  annual_turnover: string;
+
+  @IsString()
+  @IsNotEmpty()
+  currency: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
+}
+
+export class CreateEbookRdtwc {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  full_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(15)
+  mobile_number: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  designation: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(50)
+  business_industry: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(100)
+  annual_turnover: string;
+
+  @IsString()
+  @IsNotEmpty()
+  currency: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
+}
+
+export class CreateEbookHtoycacgag {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  full_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(15)
+  mobile_number: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  designation: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(50)
+  business_industry: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(100)
+  annual_turnover: string;
+
+  @IsString()
+  @IsNotEmpty()
+  currency: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
+}
+
+export class CreateEbookEastipate {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  full_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(15)
+  mobile_number: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  designation: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(50)
+  business_industry: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(100)
+  annual_turnover: string;
+
+  @IsString()
+  @IsNotEmpty()
+  currency: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
+}
+export class CreateEbookTcgtcecstsobe {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  full_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(15)
+  mobile_number: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(20)
+  designation: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(50)
+  business_industry: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(100)
+  annual_turnover: string;
+
+  @IsString()
+  @IsNotEmpty()
+  currency: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
 }
