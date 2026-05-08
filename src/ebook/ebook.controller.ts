@@ -1,13 +1,23 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { EbookService } from './ebook.service';
 import {
+  CreateEbookBiiin,
   CreateEbookBiiis,
   CreateEbookDecg,
   CreateEbookIetfnbs,
   CreateEbookIpgfcifr,
+  CreateEbookMcanae,
   CreateEbookSbbg,
   CreateEbookTtqyfbpa,
   CreateEbookTyfftoa,
+  CreateEbookUrgtcss,
+  CreateEbookYeccfbo,
+  CreateEbookBgc,
+  CreateEbookEiu,
+  CreateEbookRdtwc,
+  CreateEbookHtoycacgag,
+  CreateEbookEastipate,
+  CreateEbookTcgtcecstsobe,
 } from './dto/create-ebook.dto';
 import { CaptchaProtected } from 'src/common/decorators/captcha-protected.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
@@ -64,5 +74,75 @@ export class EbookController {
   @CaptchaProtected()
   sbbg(@Body() createEbookSbbg: CreateEbookSbbg) {
     return this.ebookService.sbbg(createEbookSbbg);
+  }
+
+  @Post('urgtcss')
+  @Public()
+  @CaptchaProtected()
+  urgtcss(@Body() createEbookUrgtcss: CreateEbookUrgtcss) {
+    return this.ebookService.urgtcss(createEbookUrgtcss);
+  }
+
+  @Post('biiin')
+  @Public()
+  @CaptchaProtected()
+  biiin(@Body() createEbookBiiin: CreateEbookBiiin) {
+    return this.ebookService.biiin(createEbookBiiin);
+  }
+
+  @Post('mcanae')
+  @Public()
+  @CaptchaProtected()
+  mcanae(@Body() createEbookMcanae: CreateEbookMcanae) {
+    return this.ebookService.mcanae(createEbookMcanae);
+  }
+
+  @Post('yeccfbo')
+  @Public()
+  @CaptchaProtected()
+  yeccfbo(@Body() createEbookYeccfbo: CreateEbookYeccfbo) {
+    return this.ebookService.yeccfbo(createEbookYeccfbo);
+  }
+
+  @Post('bgc')
+  @Public()
+  @CaptchaProtected()
+  bgc(@Body() createEbookBgc: CreateEbookBgc) {
+    return this.ebookService.bgc(createEbookBgc);
+  }
+
+  @Post('eiu')
+  @Public()
+  @CaptchaProtected()
+  eiu(@Body() createEbookEiu: CreateEbookEiu) {
+    return this.ebookService.eiu(createEbookEiu);
+  }
+
+  @Post('rdtwc')
+  @Public()
+  @CaptchaProtected()
+  rdtwc(@Body() createEbookRdtwc: CreateEbookRdtwc) {
+    return this.ebookService.rdtwc(createEbookRdtwc);
+  }
+
+  @Post('htoycacgag')
+  @Public()
+  @CaptchaProtected()
+  htoycacgag(@Body() createEbookHtoycacgag: CreateEbookHtoycacgag) {
+    return this.ebookService.htoycacgag(createEbookHtoycacgag);
+  }
+
+  @Post('eastipate')
+  @Public()
+  @CaptchaProtected()
+  eastipate(@Body() createEbookEastipate: CreateEbookEastipate) {
+    return this.ebookService.eastipate(createEbookEastipate);
+  }
+
+  @Post('tcgtcecstsobe')
+  @Public()
+  @CaptchaProtected()
+  tcgtcecstsobe(@Body() createEbookTcgtcecstsobe: CreateEbookTcgtcecstsobe) {
+    return this.ebookService.tcgtcecstsobe(createEbookTcgtcecstsobe);
   }
 }

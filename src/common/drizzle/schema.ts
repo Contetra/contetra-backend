@@ -148,7 +148,10 @@ export const postsTable = pgTable(
   },
   (table) => {
     return {
+      postsIdIndex: index('postsIdIndex').on(table.id),
       titleIndex: index('titleIndex').on(table.title),
+      postsSlugIndex: index('postsSlugIndex').on(table.slug),
+      postsCreatedByIndex: index('postsCreatedByIndex').on(table.created_by),
     };
   },
 );
@@ -195,99 +198,159 @@ export const eBookMetaDataTable = pgTable('eBook_meta_data', {
     .notNull(),
 });
 
-export const categoriesTable = pgTable('categories', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: varchar('name', { length: 50 }).notNull().unique(),
-  slug: varchar('slug', { length: 50 }).notNull().unique(),
-  description: varchar('description', { length: 500 }),
-  status: varchar('status', {
-    enum: ['Draft', 'Published'],
-    length: 50,
-  })
-    .notNull()
-    .default('Published'),
-  created_at: timestamp('created_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  updated_at: timestamp('updated_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const categoriesTable = pgTable(
+  'categories',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', { length: 50 }).notNull().unique(),
+    slug: varchar('slug', { length: 50 }).notNull().unique(),
+    description: varchar('description', { length: 500 }),
+    status: varchar('status', {
+      enum: ['Draft', 'Published'],
+      length: 50,
+    })
+      .notNull()
+      .default('Published'),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      categoriesIdIndex: index('categoriesIdIndex').on(table.id),
+    };
+  },
+);
 
-export const authorTable = pgTable('authors', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  author_id: uuid('author_id')
-    .references(() => userTable.id)
-    .notNull(),
-  role: varchar('role', {
-    enum: ['User', 'Author'],
-    length: 50,
-  })
-    .notNull()
-    .default('Author'),
-  created_at: timestamp('created_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  updated_at: timestamp('updated_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const authorTable = pgTable(
+  'authors',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    author_id: uuid('author_id')
+      .references(() => userTable.id)
+      .notNull(),
+    role: varchar('role', {
+      enum: ['User', 'Author'],
+      length: 50,
+    })
+      .notNull()
+      .default('Author'),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      authorIdIndex: index('authorIdIndex').on(table.id),
+      authorUserIdIndex: index('authorUserIdIndex').on(table.author_id),
+    };
+  },
+);
 
-export const postsCategoriesTable = pgTable('posts_categories', {
-  post_id: uuid('post_id')
-    .references(() => postsTable.id)
-    .notNull(),
-  category_id: uuid('category_id')
-    .references(() => categoriesTable.id)
-    .notNull(),
-  created_at: timestamp('created_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  updated_at: timestamp('updated_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const postsCategoriesTable = pgTable(
+  'posts_categories',
+  {
+    post_id: uuid('post_id')
+      .references(() => postsTable.id)
+      .notNull(),
+    category_id: uuid('category_id')
+      .references(() => categoriesTable.id)
+      .notNull(),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      postsCategoriesPostIdIndex: index('postsCategoriesPostIdIndex').on(
+        table.post_id,
+      ),
+      postsCategoriesCategoryIdIndex: index(
+        'postsCategoriesCategoryIdIndex',
+      ).on(table.category_id),
+    };
+  },
+);
 
-export const postsAuthorsTable = pgTable('posts_authors', {
-  post_id: uuid('post_id')
-    .references(() => postsTable.id)
-    .notNull(),
-  author_id: uuid('author_id')
-    .references(() => authorTable.id)
-    .notNull(),
-  created_at: timestamp('created_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  updated_at: timestamp('updated_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const postsAuthorsTable = pgTable(
+  'posts_authors',
+  {
+    post_id: uuid('post_id')
+      .references(() => postsTable.id)
+      .notNull(),
+    author_id: uuid('author_id')
+      .references(() => authorTable.id)
+      .notNull(),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      postsAuthorsPostIdIndex: index('postsAuthorsPostIdIndex').on(
+        table.post_id,
+      ),
+      postsAuthorsAuthorIdIndex: index('postsAuthorsAuthorIdIndex').on(
+        table.author_id,
+      ),
+    };
+  },
+);
 
-export const tagsTable = pgTable('tags', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: varchar('name', { length: 50 }).notNull().unique(),
-  created_at: timestamp('created_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  updated_at: timestamp('updated_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const tagsTable = pgTable(
+  'tags',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', { length: 50 }).notNull().unique(),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      tagsIdIndex: index('tagsIdIndex').on(table.id),
+    };
+  },
+);
 
-export const postsTagsTable = pgTable('posts_tags', {
-  post_id: uuid('post_id')
-    .references(() => postsTable.id)
-    .notNull(),
-  tag_id: uuid('tag_id')
-    .references(() => tagsTable.id)
-    .notNull(),
-  created_at: timestamp('created_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  updated_at: timestamp('updated_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const postsTagsTable = pgTable(
+  'posts_tags',
+  {
+    post_id: uuid('post_id')
+      .references(() => postsTable.id)
+      .notNull(),
+    tag_id: uuid('tag_id')
+      .references(() => tagsTable.id)
+      .notNull(),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      postsTagsPostIdIndex: index('postsTagsPostIdIndex').on(table.post_id),
+      postsTagsTagIdIndex: index('postsTagsTagIdIndex').on(table.tag_id),
+    };
+  },
+);
 
 export const userAttributesTable = pgTable('user_attributes', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -351,40 +414,70 @@ export const accessLogsTable = pgTable('access_logs', {
     .notNull(),
 });
 
-export const formTypesTable = pgTable('form_types', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: varchar('name', { length: 255 }).notNull().unique(),
-  created_at: timestamp('created_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  updated_at: timestamp('updated_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const formTypesTable = pgTable(
+  'form_types',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', { length: 255 }).notNull().unique(),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      formTypesIdIndex: index('formTypesIdIndex').on(table.id),
+    };
+  },
+);
 
-export const formsTable = pgTable('forms', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  form_name: varchar('form_name', { length: 255 }).notNull(),
-  form_type_id: uuid('form_type_id')
-    .references(() => formTypesTable.id)
-    .notNull(),
-  created_at: timestamp('created_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  updated_at: timestamp('updated_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const formsTable = pgTable(
+  'forms',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    form_name: varchar('form_name', { length: 255 }).notNull(),
+    form_type_id: uuid('form_type_id')
+      .references(() => formTypesTable.id)
+      .notNull(),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      formsIdIndex: index('formsIdIndex').on(table.id),
+      formsFormTypeIdIndex: index('formsFormTypeIdIndex').on(
+        table.form_type_id,
+      ),
+    };
+  },
+);
 
-export const formSubmissionsTable = pgTable('form_submissions', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  form_id: uuid('form_id')
-    .references(() => formsTable.id)
-    .notNull(),
-  sent_to: text('sent_to').notNull(),
-  email_sent: boolean('email_sent').default(false).notNull(),
-  payload: jsonb('payload').$type<Record<string, unknown>>(),
-  created_at: timestamp('created_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const formSubmissionsTable = pgTable(
+  'form_submissions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    form_id: uuid('form_id')
+      .references(() => formsTable.id)
+      .notNull(),
+    sent_to: text('sent_to').notNull(),
+    email_sent: boolean('email_sent').default(false).notNull(),
+    payload: jsonb('payload').$type<Record<string, unknown>>(),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      formSubmissionsIdIndex: index('formSubmissionsIdIndex').on(table.id),
+      formSubmissionsFormIdIndex: index('formSubmissionsFormIdIndex').on(
+        table.form_id,
+      ),
+    };
+  },
+);

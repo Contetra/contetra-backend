@@ -7,6 +7,16 @@ import {
   CreateEbookTtqyfbpa,
   CreateEbookTyfftoa,
   CreateEbookSbbg,
+  CreateEbookUrgtcss,
+  CreateEbookBiiin,
+  CreateEbookMcanae,
+  CreateEbookYeccfbo,
+  CreateEbookBgc,
+  CreateEbookEiu,
+  CreateEbookRdtwc,
+  CreateEbookHtoycacgag,
+  CreateEbookEastipate,
+  CreateEbookTcgtcecstsobe,
 } from './dto/create-ebook.dto';
 import { DRIZZLE } from 'src/common/drizzle/drizzle.module';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -160,7 +170,7 @@ export class EbookService {
       const [inserted] = await this.db
         .insert(formSubmissionsTable)
         .values({
-          form_id: 'implementable-ecl-template-for-non-bfsi-sector',
+          form_id: createEbookIetfnbs.form_id,
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookIetfnbs.full_name,
@@ -221,7 +231,7 @@ export class EbookService {
       const [inserted] = await this.db
         .insert(formSubmissionsTable)
         .values({
-          form_id: 'top-20-questions-your-fy-22-23-business-plan-must-answer',
+          form_id: createEbookTtqyfbpa.form_id,
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookTtqyfbpa.full_name,
@@ -289,8 +299,7 @@ export class EbookService {
       const [inserted] = await this.db
         .insert(formSubmissionsTable)
         .values({
-          form_id:
-            'turbocharge-your-finance-function-through-offshore-accounting',
+          form_id: createEbookTyfftoa.form_id,
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookTyfftoa.full_name,
@@ -380,7 +389,7 @@ export class EbookService {
       const [inserted] = await this.db
         .insert(formSubmissionsTable)
         .values({
-          form_id: 'maximize-profitability-choose-the-right-erp',
+          form_id: createEbookDecg.form_id,
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookDecg.full_name,
@@ -446,7 +455,7 @@ export class EbookService {
       const [inserted] = await this.db
         .insert(formSubmissionsTable)
         .values({
-          form_id: 'strategic-business-budget-guide',
+          form_id: createEbookSbbg.form_id,
           sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
           payload: {
             full_name: createEbookSbbg.full_name,
@@ -483,6 +492,706 @@ export class EbookService {
         .sendEmail({
           to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
           subject: 'Ebook - Strategic business budget guide',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async urgtcss(createEbookUrgtcss: CreateEbookUrgtcss) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/Unlocking-Revenue-Boost.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookUrgtcss.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookUrgtcss.full_name,
+            mobile_number: createEbookUrgtcss.mobile_number,
+            email: createEbookUrgtcss.email,
+            company: createEbookUrgtcss.company,
+            designation: createEbookUrgtcss.designation,
+            business_industry: createEbookUrgtcss.business_industry,
+            annual_turnover: createEbookUrgtcss.annual_turnover,
+            currency: createEbookUrgtcss.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookUrgtcss.full_name,
+        mobile_number: createEbookUrgtcss.mobile_number,
+        email: createEbookUrgtcss.email,
+        company: createEbookUrgtcss.company,
+        designation: createEbookUrgtcss.designation,
+        business_industry: createEbookUrgtcss.business_industry,
+        annual_turnover: createEbookUrgtcss.annual_turnover,
+        currency: createEbookUrgtcss.currency,
+        service_name:
+          'Ebook - Unlocking 200% Revenue Growth : The CHHABI Success Story',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject:
+            'Ebook - Unlocking 200% Revenue Growth : The CHHABI Success Story',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async biiin(createEbookBiiin: CreateEbookBiiin) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/Business-Insights-IFRS-9.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookBiiin.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookBiiin.full_name,
+            mobile_number: createEbookBiiin.mobile_number,
+            email: createEbookBiiin.email,
+            company: createEbookBiiin.company,
+            designation: createEbookBiiin.designation,
+            business_industry: createEbookBiiin.business_industry,
+            annual_turnover: createEbookBiiin.annual_turnover,
+            currency: createEbookBiiin.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookBiiin.full_name,
+        mobile_number: createEbookBiiin.mobile_number,
+        email: createEbookBiiin.email,
+        company: createEbookBiiin.company,
+        designation: createEbookBiiin.designation,
+        business_industry: createEbookBiiin.business_industry,
+        annual_turnover: createEbookBiiin.annual_turnover,
+        currency: createEbookBiiin.currency,
+        service_name: 'Ebook - Business insights into ifrs 9',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: ' Ebook - Business insights into ifrs 9',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async mcanae(createEbookMcanae: CreateEbookMcanae) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/Amendments-in-delayed-payment-to-MSME-vendor.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookMcanae.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookMcanae.full_name,
+            mobile_number: createEbookMcanae.mobile_number,
+            email: createEbookMcanae.email,
+            company: createEbookMcanae.company,
+            designation: createEbookMcanae.designation,
+            business_industry: createEbookMcanae.business_industry,
+            annual_turnover: createEbookMcanae.annual_turnover,
+            currency: createEbookMcanae.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookMcanae.full_name,
+        mobile_number: createEbookMcanae.mobile_number,
+        email: createEbookMcanae.email,
+        company: createEbookMcanae.company,
+        designation: createEbookMcanae.designation,
+        business_industry: createEbookMcanae.business_industry,
+        annual_turnover: createEbookMcanae.annual_turnover,
+        currency: createEbookMcanae.currency,
+        service_name:
+          'Ebook - MSME Collection Advantage: New Amendment Explained',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject:
+            ' Ebook - MSME Collection Advantage: New Amendment Explained',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async yeccfbo(createEbookYeccfbo: CreateEbookYeccfbo) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/Financial-Year-End-Closing-Checklist-23-24-1.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookYeccfbo.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookYeccfbo.full_name,
+            mobile_number: createEbookYeccfbo.mobile_number,
+            email: createEbookYeccfbo.email,
+            company: createEbookYeccfbo.company,
+            designation: createEbookYeccfbo.designation,
+            business_industry: createEbookYeccfbo.business_industry,
+            annual_turnover: createEbookYeccfbo.annual_turnover,
+            currency: createEbookYeccfbo.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookYeccfbo.full_name,
+        mobile_number: createEbookYeccfbo.mobile_number,
+        email: createEbookYeccfbo.email,
+        company: createEbookYeccfbo.company,
+        designation: createEbookYeccfbo.designation,
+        business_industry: createEbookYeccfbo.business_industry,
+        annual_turnover: createEbookYeccfbo.annual_turnover,
+        currency: createEbookYeccfbo.currency,
+        service_name: 'Ebook - Year-end Closure Checklist for Business Owners',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: ' Ebook - Year-end Closure Checklist for Business Owners',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async bgc(createEbookBgc: CreateEbookBgc) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/Business-growth-Compliance-New-Financial-Year-Key-Points.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookBgc.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookBgc.full_name,
+            mobile_number: createEbookBgc.mobile_number,
+            email: createEbookBgc.email,
+            company: createEbookBgc.company,
+            designation: createEbookBgc.designation,
+            business_industry: createEbookBgc.business_industry,
+            annual_turnover: createEbookBgc.annual_turnover,
+            currency: createEbookBgc.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookBgc.full_name,
+        mobile_number: createEbookBgc.mobile_number,
+        email: createEbookBgc.email,
+        company: createEbookBgc.company,
+        designation: createEbookBgc.designation,
+        business_industry: createEbookBgc.business_industry,
+        annual_turnover: createEbookBgc.annual_turnover,
+        currency: createEbookBgc.currency,
+        service_name: 'Ebook - Business Growth & Compliance',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: ' Ebook - Business Growth & Compliance',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async eiu(createEbookEiu: CreateEbookEiu) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/ERP-Implementation-decoded.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookEiu.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookEiu.full_name,
+            mobile_number: createEbookEiu.mobile_number,
+            email: createEbookEiu.email,
+            company: createEbookEiu.company,
+            designation: createEbookEiu.designation,
+            business_industry: createEbookEiu.business_industry,
+            annual_turnover: createEbookEiu.annual_turnover,
+            currency: createEbookEiu.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookEiu.full_name,
+        mobile_number: createEbookEiu.mobile_number,
+        email: createEbookEiu.email,
+        company: createEbookEiu.company,
+        designation: createEbookEiu.designation,
+        business_industry: createEbookEiu.business_industry,
+        annual_turnover: createEbookEiu.annual_turnover,
+        currency: createEbookEiu.currency,
+        service_name: 'Ebook - ERP Implementation Unveiled',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: ' Ebook - ERP Implementation Unveiled',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async rdtwc(createEbookRdtwc: CreateEbookRdtwc) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/ROI-Driven-Trainings-with-Contetra.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookRdtwc.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookRdtwc.full_name,
+            mobile_number: createEbookRdtwc.mobile_number,
+            email: createEbookRdtwc.email,
+            company: createEbookRdtwc.company,
+            designation: createEbookRdtwc.designation,
+            business_industry: createEbookRdtwc.business_industry,
+            annual_turnover: createEbookRdtwc.annual_turnover,
+            currency: createEbookRdtwc.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookRdtwc.full_name,
+        mobile_number: createEbookRdtwc.mobile_number,
+        email: createEbookRdtwc.email,
+        company: createEbookRdtwc.company,
+        designation: createEbookRdtwc.designation,
+        business_industry: createEbookRdtwc.business_industry,
+        annual_turnover: createEbookRdtwc.annual_turnover,
+        currency: createEbookRdtwc.currency,
+        service_name: 'Ebook - Roi-Driven Trainings With Contetra',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: ' Ebook - Roi-Driven Trainings With Contetra',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async htoycacgag(createEbookHtoycacgag: CreateEbookHtoycacgag) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/How-to-optimise-your-customers-a-Comprehensive-Guide-to-Achieve-10X-Growth.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookHtoycacgag.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookHtoycacgag.full_name,
+            mobile_number: createEbookHtoycacgag.mobile_number,
+            email: createEbookHtoycacgag.email,
+            company: createEbookHtoycacgag.company,
+            designation: createEbookHtoycacgag.designation,
+            business_industry: createEbookHtoycacgag.business_industry,
+            annual_turnover: createEbookHtoycacgag.annual_turnover,
+            currency: createEbookHtoycacgag.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookHtoycacgag.full_name,
+        mobile_number: createEbookHtoycacgag.mobile_number,
+        email: createEbookHtoycacgag.email,
+        company: createEbookHtoycacgag.company,
+        designation: createEbookHtoycacgag.designation,
+        business_industry: createEbookHtoycacgag.business_industry,
+        annual_turnover: createEbookHtoycacgag.annual_turnover,
+        currency: createEbookHtoycacgag.currency,
+        service_name:
+          'Ebook - HOW TO OPTIMISE YOUR CUSTOMERS: A Comprehensive Guide Achieve 10X Growth',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject:
+            ' Ebook - HOW TO OPTIMISE YOUR CUSTOMERS: A Comprehensive Guide Achieve 10X Growth',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async eastipate(createEbookEastipate: CreateEbookEastipate) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/8-Actionable-Strategies-to-Improve-Profit-After-Tax.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookEastipate.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookEastipate.full_name,
+            mobile_number: createEbookEastipate.mobile_number,
+            email: createEbookEastipate.email,
+            company: createEbookEastipate.company,
+            designation: createEbookEastipate.designation,
+            business_industry: createEbookEastipate.business_industry,
+            annual_turnover: createEbookEastipate.annual_turnover,
+            currency: createEbookEastipate.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookEastipate.full_name,
+        mobile_number: createEbookEastipate.mobile_number,
+        email: createEbookEastipate.email,
+        company: createEbookEastipate.company,
+        designation: createEbookEastipate.designation,
+        business_industry: createEbookEastipate.business_industry,
+        annual_turnover: createEbookEastipate.annual_turnover,
+        currency: createEbookEastipate.currency,
+        service_name:
+          'Ebook - 8 Actionable Strategies to Improve Profit After Tax',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject:
+            ' Ebook - 8 Actionable Strategies to Improve Profit After Tax',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async tcgtcecstsobe(createEbookTcgtcecstsobe: CreateEbookTcgtcecstsobe) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/8-Actionable-Strategies-to-Improve-Profit-After-Tax.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookTcgtcecstsobe.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookTcgtcecstsobe.full_name,
+            mobile_number: createEbookTcgtcecstsobe.mobile_number,
+            email: createEbookTcgtcecstsobe.email,
+            company: createEbookTcgtcecstsobe.company,
+            designation: createEbookTcgtcecstsobe.designation,
+            business_industry: createEbookTcgtcecstsobe.business_industry,
+            annual_turnover: createEbookTcgtcecstsobe.annual_turnover,
+            currency: createEbookTcgtcecstsobe.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookTcgtcecstsobe.full_name,
+        mobile_number: createEbookTcgtcecstsobe.mobile_number,
+        email: createEbookTcgtcecstsobe.email,
+        company: createEbookTcgtcecstsobe.company,
+        designation: createEbookTcgtcecstsobe.designation,
+        business_industry: createEbookTcgtcecstsobe.business_industry,
+        annual_turnover: createEbookTcgtcecstsobe.annual_turnover,
+        currency: createEbookTcgtcecstsobe.currency,
+        service_name:
+          'Ebook - The CFO guide to Controlling ERP Costs: 6 Strategies to Stay on Budget',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject:
+            ' Ebook - The CFOs guide to Controlling ERP Costs:6 Strategies to Stay on Budget',
           html,
         })
         .then(async () => {
