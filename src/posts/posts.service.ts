@@ -393,4 +393,15 @@ export class PostsService {
       .limit(1);
     return latestPost[0] ?? null;
   }
+
+  async getAllBlogsForSitemap() {
+    return this.db
+      .select({
+        slug: postsTable.slug,
+        updated_at: postsTable.updated_at,
+      })
+      .from(postsTable)
+      .where(eq(postsTable.status, 'Published'))
+      .orderBy(desc(postsTable.updated_at));
+  }
 }

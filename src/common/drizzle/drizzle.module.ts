@@ -15,7 +15,7 @@ export const DRIZZLE = 'DRIZZLE';
         const pool = new Pool({
           connectionString: configService.get<string>('DATABASE_URL'),
         });
-        return drizzle(pool, { logger: true });
+        return drizzle(pool, { logger: false });
       },
     },
   ],

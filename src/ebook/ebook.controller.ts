@@ -18,6 +18,10 @@ import {
   CreateEbookHtoycacgag,
   CreateEbookEastipate,
   CreateEbookTcgtcecstsobe,
+  CreateEbookBiirr,
+  CreateEbookPcc,
+  CreateEbookRruasioam,
+  CreateEbookYfpfe,
 } from './dto/create-ebook.dto';
 import { CaptchaProtected } from 'src/common/decorators/captcha-protected.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
@@ -144,5 +148,33 @@ export class EbookController {
   @CaptchaProtected()
   tcgtcecstsobe(@Body() createEbookTcgtcecstsobe: CreateEbookTcgtcecstsobe) {
     return this.ebookService.tcgtcecstsobe(createEbookTcgtcecstsobe);
+  }
+
+  @Post('biirr')
+  @Public()
+  @CaptchaProtected()
+  biirr(@Body() createEbookBiirr: CreateEbookBiirr) {
+    return this.ebookService.biirr(createEbookBiirr);
+  }
+
+  @Post('pcc')
+  @Public()
+  @CaptchaProtected()
+  pcc(@Body() createEbookPcc: CreateEbookPcc) {
+    return this.ebookService.pcc(createEbookPcc);
+  }
+
+  @Post('rruasioam')
+  @Public()
+  @CaptchaProtected()
+  rruasioam(@Body() createEbookRruasioam: CreateEbookRruasioam) {
+    return this.ebookService.rruasioam(createEbookRruasioam);
+  }
+
+  @Post('yfpfe')
+  @Public()
+  @CaptchaProtected()
+  yfpfe(@Body() createEbookYfpfe: CreateEbookYfpfe) {
+    return this.ebookService.yfpfe(createEbookYfpfe);
   }
 }

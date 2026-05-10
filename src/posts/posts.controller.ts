@@ -93,4 +93,10 @@ export class PostsController {
   getLatestBlog() {
     return this.postsService.getLatestBlog();
   }
+
+  @Get('blog-all')
+  @Public()
+  getAllBlogsForSitemap() {
+    return this.postsService.getAllBlogsForSitemap();
+  }
 }
