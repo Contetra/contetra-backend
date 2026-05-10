@@ -7,7 +7,7 @@ import { ResponseInterceptor } from './reponse.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    bufferLogs: true,
+    bufferLogs: false,
   });
 
   app.useLogger(app.get(MyLoggerService));

@@ -17,6 +17,10 @@ import {
   CreateEbookHtoycacgag,
   CreateEbookEastipate,
   CreateEbookTcgtcecstsobe,
+  CreateEbookBiirr,
+  CreateEbookPcc,
+  CreateEbookRruasioam,
+  CreateEbookYfpfe,
 } from './dto/create-ebook.dto';
 import { DRIZZLE } from 'src/common/drizzle/drizzle.module';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -1146,7 +1150,7 @@ export class EbookService {
   async tcgtcecstsobe(createEbookTcgtcecstsobe: CreateEbookTcgtcecstsobe) {
     try {
       const link = this.bunnyService.generateSignedUrl(
-        '/ebooks/8-Actionable-Strategies-to-Improve-Profit-After-Tax.pdf',
+        '/ebooks/Unlock-the-secrets-to-mastering-ERP-Costs.pdf',
         1800,
       );
 
@@ -1192,6 +1196,284 @@ export class EbookService {
           to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
           subject:
             ' Ebook - The CFOs guide to Controlling ERP Costs:6 Strategies to Stay on Budget',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async biirr(createEbookBiirr: CreateEbookBiirr) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/Business-Insights-into-Revenue-Recognition.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookBiirr.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookBiirr.full_name,
+            mobile_number: createEbookBiirr.mobile_number,
+            email: createEbookBiirr.email,
+            company: createEbookBiirr.company,
+            designation: createEbookBiirr.designation,
+            business_industry: createEbookBiirr.business_industry,
+            annual_turnover: createEbookBiirr.annual_turnover,
+            currency: createEbookBiirr.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookBiirr.full_name,
+        mobile_number: createEbookBiirr.mobile_number,
+        email: createEbookBiirr.email,
+        company: createEbookBiirr.company,
+        designation: createEbookBiirr.designation,
+        business_industry: createEbookBiirr.business_industry,
+        annual_turnover: createEbookBiirr.annual_turnover,
+        currency: createEbookBiirr.currency,
+        service_name: 'Ebook - Business Insights into Revenue Recognition',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: ' Ebook - Business Insights into Revenue Recognition',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async pcc(createEbookPcc: CreateEbookPcc) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/Period-closure-checklist.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookPcc.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookPcc.full_name,
+            mobile_number: createEbookPcc.mobile_number,
+            email: createEbookPcc.email,
+            company: createEbookPcc.company,
+            designation: createEbookPcc.designation,
+            business_industry: createEbookPcc.business_industry,
+            annual_turnover: createEbookPcc.annual_turnover,
+            currency: createEbookPcc.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookPcc.full_name,
+        mobile_number: createEbookPcc.mobile_number,
+        email: createEbookPcc.email,
+        company: createEbookPcc.company,
+        designation: createEbookPcc.designation,
+        business_industry: createEbookPcc.business_industry,
+        annual_turnover: createEbookPcc.annual_turnover,
+        currency: createEbookPcc.currency,
+        service_name: 'Ebook - Period closure checklist',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: ' Ebook - Period closure checklist',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async rruasioam(createEbookRruasioam: CreateEbookRruasioam) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/Revamping-Revenue.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookRruasioam.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookRruasioam.full_name,
+            mobile_number: createEbookRruasioam.mobile_number,
+            email: createEbookRruasioam.email,
+            company: createEbookRruasioam.company,
+            designation: createEbookRruasioam.designation,
+            business_industry: createEbookRruasioam.business_industry,
+            annual_turnover: createEbookRruasioam.annual_turnover,
+            currency: createEbookRruasioam.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookRruasioam.full_name,
+        mobile_number: createEbookRruasioam.mobile_number,
+        email: createEbookRruasioam.email,
+        company: createEbookRruasioam.company,
+        designation: createEbookRruasioam.designation,
+        business_industry: createEbookRruasioam.business_industry,
+        annual_turnover: createEbookRruasioam.annual_turnover,
+        currency: createEbookRruasioam.currency,
+        service_name:
+          'Ebook - Revamping Revenue unveiling ASC 606 Implications on Acquisition memo',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject:
+            ' Ebook - Revamping Revenue unveiling ASC 606 Implications on Acquisition memo',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+        link,
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async yfpfe(createEbookYfpfe: CreateEbookYfpfe) {
+    try {
+      const link = this.bunnyService.generateSignedUrl(
+        '/ebooks/Your-Financial-Playbook-fy-2026-27-edition.pdf',
+        1800,
+      );
+
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createEbookYfpfe.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createEbookYfpfe.full_name,
+            mobile_number: createEbookYfpfe.mobile_number,
+            email: createEbookYfpfe.email,
+            company: createEbookYfpfe.company,
+            designation: createEbookYfpfe.designation,
+            business_industry: createEbookYfpfe.business_industry,
+            annual_turnover: createEbookYfpfe.annual_turnover,
+            currency: createEbookYfpfe.currency,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbbg_service_template', {
+        full_name: createEbookYfpfe.full_name,
+        mobile_number: createEbookYfpfe.mobile_number,
+        email: createEbookYfpfe.email,
+        company: createEbookYfpfe.company,
+        designation: createEbookYfpfe.designation,
+        business_industry: createEbookYfpfe.business_industry,
+        annual_turnover: createEbookYfpfe.annual_turnover,
+        currency: createEbookYfpfe.currency,
+        service_name: 'Ebook - Your Financial Playbook fy 2025-26 edition',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: 'Ebook - Your Financial Playbook fy 2025-26 edition',
           html,
         })
         .then(async () => {
