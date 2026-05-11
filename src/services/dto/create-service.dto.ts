@@ -459,3 +459,90 @@ export class CreateServiceDtoFrcOne {
   @IsUUID()
   form_id!: string;
 }
+
+export class CreateServiceDtoSbfms {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  annual_turnover!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  business_industry!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  business_vision!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  city!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  commitment!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  company_name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  currency!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  designation!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  financial_comfort!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  full_name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  mentor_preference!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  phone_number!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  planning_process!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  primary_reason!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  support_type!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  work_email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id!: string;
+}

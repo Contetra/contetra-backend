@@ -7,6 +7,7 @@ import {
   CreateServiceDtoIr,
   CreateServiceDtoOas,
   CreateServiceDtoOasTwo,
+  CreateServiceDtoSbfms,
   CreateServiceDtoSt,
   CreateServiceDtoTaigasOne,
   CreateServiceDtoTaigasTwo,
@@ -678,6 +679,86 @@ export class ServicesService {
         .sendEmail({
           to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
           subject: 'Financial Reporting Consulting',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async sbfms(createServiceDtoSbfms: CreateServiceDtoSbfms) {
+    try {
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createServiceDtoSbfms.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            annual_turnover: createServiceDtoSbfms.annual_turnover,
+            business_industry: createServiceDtoSbfms.business_industry,
+            business_vision: createServiceDtoSbfms.business_vision,
+            city: createServiceDtoSbfms.city,
+            commitment: createServiceDtoSbfms.commitment,
+            company_name: createServiceDtoSbfms.company_name,
+            currency: createServiceDtoSbfms.currency,
+            designation: createServiceDtoSbfms.designation,
+            financial_comfort: createServiceDtoSbfms.financial_comfort,
+            full_name: createServiceDtoSbfms.full_name,
+            mentor_preference: createServiceDtoSbfms.mentor_preference,
+            phone_number: createServiceDtoSbfms.phone_number,
+            planning_process: createServiceDtoSbfms.planning_process,
+            primary_reason: createServiceDtoSbfms.primary_reason,
+            support_type: createServiceDtoSbfms.support_type,
+            work_email: createServiceDtoSbfms.work_email,
+            form_id: createServiceDtoSbfms.form_id,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('sbfms_service_template', {
+        annual_turnover: createServiceDtoSbfms.annual_turnover,
+        business_industry: createServiceDtoSbfms.business_industry,
+        business_vision: createServiceDtoSbfms.business_vision,
+        city: createServiceDtoSbfms.city,
+        commitment: createServiceDtoSbfms.commitment,
+        company_name: createServiceDtoSbfms.company_name,
+        currency: createServiceDtoSbfms.currency,
+        designation: createServiceDtoSbfms.designation,
+        financial_comfort: createServiceDtoSbfms.financial_comfort,
+        full_name: createServiceDtoSbfms.full_name,
+        mentor_preference: createServiceDtoSbfms.mentor_preference,
+        phone_number: createServiceDtoSbfms.phone_number,
+        planning_process: createServiceDtoSbfms.planning_process,
+        primary_reason: createServiceDtoSbfms.primary_reason,
+        support_type: createServiceDtoSbfms.support_type,
+        work_email: createServiceDtoSbfms.work_email,
+        service_name: 'Strategic business financial management solutions',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: 'Strategic business financial management solutions',
           html,
         })
         .then(async () => {

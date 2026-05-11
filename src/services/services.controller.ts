@@ -11,6 +11,7 @@ import {
   CreateServiceDtoCtOne,
   CreateServiceDtoIr,
   CreateServiceDtoFrcOne,
+  CreateServiceDtoSbfms,
 } from './dto/create-service.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import { CaptchaProtected } from 'src/common/decorators/captcha-protected.decorator';
@@ -87,5 +88,12 @@ export class ServicesController {
   @CaptchaProtected()
   frcOne(@Body() createServiceDtoFrcOne: CreateServiceDtoFrcOne) {
     return this.servicesService.frcOne(createServiceDtoFrcOne);
+  }
+
+  @Post('sbfms')
+  @Public()
+  @CaptchaProtected()
+  sbfms(@Body() createServiceDtoSbfms: CreateServiceDtoSbfms) {
+    return this.servicesService.sbfms(createServiceDtoSbfms);
   }
 }
