@@ -147,8 +147,6 @@ export class PostsService {
       .limit(limit)
       .offset(offset);
 
-    console.log('posts', posts);
-
     return {
       data: posts,
       meta: {
@@ -274,7 +272,6 @@ export class PostsService {
   async getBlogData(slug: string) {
     // Fetch main blog with full details
 
-    console.log('slug', slug);
     const blogResult = await this.db
       .select({
         id: postsTable.id,
@@ -344,8 +341,6 @@ export class PostsService {
       .groupBy(postsTable.id)
       .orderBy(desc(postsTable.created_at))
       .limit(5);
-
-    console.log('relatedBlogs', relatedBlogs);
 
     return {
       blog,
