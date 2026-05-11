@@ -416,3 +416,46 @@ export class CreateServiceDtoIr {
   @IsUUID()
   form_id!: string;
 }
+
+export class CreateServiceDtoFrcOne {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  @MinLength(2)
+  work_email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  company!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  designation!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  how_can_we_help!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  finance_team_size!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  phone_number!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id!: string;
+}

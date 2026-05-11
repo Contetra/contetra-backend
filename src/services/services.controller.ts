@@ -10,6 +10,7 @@ import {
   CreateServiceDtoOasTwo,
   CreateServiceDtoCtOne,
   CreateServiceDtoIr,
+  CreateServiceDtoFrcOne,
 } from './dto/create-service.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import { CaptchaProtected } from 'src/common/decorators/captcha-protected.decorator';
@@ -79,5 +80,12 @@ export class ServicesController {
   @CaptchaProtected()
   ir(@Body() createServiceDtoIr: CreateServiceDtoIr) {
     return this.servicesService.ir(createServiceDtoIr);
+  }
+
+  @Post('frcOne')
+  @Public()
+  @CaptchaProtected()
+  frcOne(@Body() createServiceDtoFrcOne: CreateServiceDtoFrcOne) {
+    return this.servicesService.frcOne(createServiceDtoFrcOne);
   }
 }

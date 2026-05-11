@@ -3,6 +3,7 @@ import {
   CreateServiceDtoCtOne,
   CreateServiceDtoEisOne,
   CreateServiceDtoEisTwo,
+  CreateServiceDtoFrcOne,
   CreateServiceDtoIr,
   CreateServiceDtoOas,
   CreateServiceDtoOasTwo,
@@ -616,6 +617,67 @@ export class ServicesService {
         .sendEmail({
           to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
           subject: 'IPO Readiness',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async frcOne(createServiceDtoFrcOne: CreateServiceDtoFrcOne) {
+    try {
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createServiceDtoFrcOne.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            name: createServiceDtoFrcOne.name,
+            work_email: createServiceDtoFrcOne.work_email,
+            company: createServiceDtoFrcOne.company,
+            designation: createServiceDtoFrcOne.designation,
+            help_topic: createServiceDtoFrcOne.how_can_we_help,
+            message: createServiceDtoFrcOne.finance_team_size,
+            phone_number: createServiceDtoFrcOne.phone_number,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('frc_service_template_one', {
+        name: createServiceDtoFrcOne.name,
+        work_email: createServiceDtoFrcOne.work_email,
+        company: createServiceDtoFrcOne.company,
+        designation: createServiceDtoFrcOne.designation,
+        help_topic: createServiceDtoFrcOne.how_can_we_help,
+        finance_team_size: createServiceDtoFrcOne.finance_team_size,
+        phone_number: createServiceDtoFrcOne.phone_number,
+        service_name: 'Financial Reporting Consulting',
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: 'Financial Reporting Consulting',
           html,
         })
         .then(async () => {

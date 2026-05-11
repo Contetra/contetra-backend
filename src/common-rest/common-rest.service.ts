@@ -2,6 +2,7 @@ import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import {
   CreateAuthors,
   CreateCategories,
+  CreateContactCtac,
   CreateContactUs,
 } from './dto/create-common-rest.dto';
 import { DRIZZLE } from 'src/common/drizzle/drizzle.module';
@@ -161,6 +162,68 @@ export class CommonRestService {
         .sendEmail({
           to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
           subject: 'Contact Us Form Submission',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, id));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      return {
+        message: 'Message sent successfully!',
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async contactCtac(createContactCtac: CreateContactCtac) {
+    try {
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createContactCtac.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            full_name: createContactCtac.full_name,
+            company: createContactCtac.company,
+            city: createContactCtac.city,
+            training_for_multiple_members:
+              createContactCtac.training_for_multiple_members,
+            training_interests: createContactCtac.training_interests,
+            phone_number: createContactCtac.phone_number,
+            work_email: createContactCtac.work_email,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const id = inserted.id;
+
+      const html = this.templateService.render('contact_ctac_template', {
+        full_name: createContactCtac.full_name,
+        phone_number: createContactCtac.phone_number,
+        work_email: createContactCtac.work_email,
+        company: createContactCtac.company,
+        city: createContactCtac.city,
+        training_for_multiple_members:
+          createContactCtac.training_for_multiple_members,
+        training_interests: createContactCtac.training_interests,
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: 'corporate trainings at contetra',
           html,
         })
         .then(async () => {

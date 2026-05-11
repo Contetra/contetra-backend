@@ -3,6 +3,7 @@ import { CommonRestService } from './common-rest.service';
 import {
   CreateAuthors,
   CreateCategories,
+  CreateContactCtac,
   CreateContactUs,
 } from './dto/create-common-rest.dto';
 import { Public } from 'src/common/decorators/public.decorator';
@@ -43,5 +44,11 @@ export class CommonRestController {
   @Public()
   async contactUs(@Body() createContactUs: CreateContactUs) {
     return this.commonRestService.contactUs(createContactUs);
+  }
+
+  @Post('contact-ctac')
+  @Public()
+  async contactCtac(@Body() createContactCtac: CreateContactCtac) {
+    return this.commonRestService.contactCtac(createContactCtac);
   }
 }
