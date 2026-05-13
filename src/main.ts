@@ -1,6 +1,7 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 import { MyLoggerService } from './my-logger/my-logger.service';
 import { AllExceptionsFilter } from './all-exception.filter';
 import { ResponseInterceptor } from './reponse.interceptor';
@@ -10,6 +11,7 @@ async function bootstrap() {
     bufferLogs: false,
   });
 
+  app.use(helmet());
   app.useLogger(app.get(MyLoggerService));
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
