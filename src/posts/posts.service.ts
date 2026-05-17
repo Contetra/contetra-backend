@@ -1,4 +1,10 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { DRIZZLE } from 'src/common/drizzle/drizzle.module';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -11,7 +17,7 @@ import {
   userTable,
 } from 'src/common/drizzle/schema';
 import { JwtPayload } from 'src/types/auth';
-import { and, asc, desc, eq, ilike, inArray, SQL, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike, inArray, ne, SQL, sql } from 'drizzle-orm';
 import { UpdatePostDto } from './dto/update-post.dto';
 
 export type Post = typeof postsTable.$inferSelect;
@@ -74,16 +80,80 @@ export class PostsService {
   }
 
   async updateBlog(updatePostDto: UpdatePostDto) {
-    const { id, content } = updatePostDto;
+    const { id, title, slug, content, feature_image_url, excerpt } =
+      updatePostDto;
 
-    await this.db
-      .update(postsTable)
-      .set({ content })
+    const hasUpdates = [title, slug, content, feature_image_url, excerpt].some(
+      (field) => field !== undefined,
+    );
+
+    if (!hasUpdates) {
+      throw new BadRequestException(
+        'At least one field must be provided to update',
+      );
+    }
+
+    const [existing] = await this.db
+      .select({ id: postsTable.id })
+      .from(postsTable)
       .where(eq(postsTable.id, id));
 
-    return {
-      message: 'Post updated successfully',
-    };
+    if (!existing) {
+      throw new NotFoundException('Post not found');
+    }
+
+    if (slug) {
+      const slugExists = await this.db
+        .select({ id: postsTable.id })
+        .from(postsTable)
+        .where(and(eq(postsTable.slug, slug), ne(postsTable.id, id)));
+
+      if (slugExists.length > 0) {
+        throw new ConflictException('Slug already exists');
+      }
+    }
+
+    try {
+      const updateData: {
+        title?: string;
+        slug?: string;
+        content?: string;
+        feature_image_url?: string;
+        excerpt?: string;
+        updated_at: Date;
+      } = {
+        updated_at: new Date(),
+      };
+
+      if (title !== undefined) {
+        updateData.title = title;
+      }
+      if (slug !== undefined) {
+        updateData.slug = slug;
+      }
+      if (content !== undefined) {
+        updateData.content = content;
+      }
+      if (feature_image_url !== undefined) {
+        updateData.feature_image_url = feature_image_url;
+      }
+      if (excerpt !== undefined) {
+        updateData.excerpt = excerpt;
+      }
+
+      await this.db
+        .update(postsTable)
+        .set(updateData)
+        .where(eq(postsTable.id, id));
+
+      return {
+        message: 'Post updated successfully',
+        post_id: id,
+      };
+    } catch (error) {
+      console.error('Update failed:', error);
+      throw error;
+    }
   }
 
   async findAll(

@@ -9,6 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { Public } from '../common/decorators/public.decorator';
+import { CaptchaProtected } from 'src/common/decorators/captcha-protected.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +22,7 @@ export class AuthController {
 
   @Public()
   @Post('login')
+  @CaptchaProtected()
   @HttpCode(HttpStatus.OK)
   async login(@Body() dto: Pick<CreateAuthDto, 'email' | 'password'>) {
     return this.authService.login(dto);
