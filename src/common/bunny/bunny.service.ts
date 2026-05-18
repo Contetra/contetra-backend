@@ -65,20 +65,40 @@ export class BunnyService {
 
     const uploadUrl = `https://${region}.bunnycdn.com/${storageZone}/${remoteFilePath}`;
 
-    const fileBuffer = fs.readFileSync(file.path);
+    try {
+      const fileBuffer = fs.readFileSync(file.path);
 
-    await axios.put(uploadUrl, fileBuffer, {
-      headers: {
-        AccessKey: apiKey,
-        'Content-Type': file.mimetype,
-      },
+      await axios.put(
+        uploadUrl,
 
-      maxBodyLength: Infinity,
-    });
+        fileBuffer,
 
-    fs.unlinkSync(file.path);
+        {
+          headers: {
+            AccessKey: apiKey,
 
-    return `${cdnUrl}/${remoteFilePath}`;
+            'Content-Type': file.mimetype,
+          },
+
+          maxBodyLength: Infinity,
+        },
+      );
+
+      return `${cdnUrl}/${remoteFilePath}`;
+    } finally {
+      try {
+        if (fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
+      } catch (deleteError) {
+        console.error(
+          'Failed to delete local file:',
+          file.path,
+
+          deleteError,
+        );
+      }
+    }
   }
 
   async uploadMultipleFiles(
