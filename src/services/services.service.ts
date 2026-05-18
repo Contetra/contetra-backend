@@ -20,6 +20,8 @@ import { DRIZZLE } from 'src/common/drizzle/drizzle.module';
 import { formSubmissionsTable } from 'src/common/drizzle/schema';
 import { EMAIL_RECIPIENTS } from 'src/email/email-recipients';
 import { eq } from 'drizzle-orm';
+import { CreateKycDto } from 'src/ebook/dto/create-ebook.dto';
+import { GoogleSheetsService } from 'src/common/google/google-sheets.service';
 
 @Injectable()
 export class ServicesService {
@@ -28,7 +30,258 @@ export class ServicesService {
     private readonly emailService: EmailService,
     private readonly templateService: EmailTemplateService,
     private readonly bunnyService: BunnyService,
+    private readonly googleSheetsService: GoogleSheetsService,
   ) {}
+
+  private async processUploads(
+    createKycDto: CreateKycDto,
+    files: {
+      pan_upload?: Express.Multer.File[];
+      gst_upload?: Express.Multer.File[];
+      signed_nda?: Express.Multer.File[];
+      signed_engagement_letter?: Express.Multer.File[];
+    },
+
+    companyFolder: string,
+
+    submissionId: string,
+  ): Promise<void> {
+    try {
+      const panUploadUrls = await this.bunnyService.uploadMultipleFiles(
+        files.pan_upload || [],
+        `kyc/${companyFolder}/pan_upload`,
+      );
+
+      const gstUploadUrls = await this.bunnyService.uploadMultipleFiles(
+        files.gst_upload || [],
+        `kyc/${companyFolder}/gst_upload`,
+      );
+
+      const signedNdaUrls = await this.bunnyService.uploadMultipleFiles(
+        files.signed_nda || [],
+        `kyc/${companyFolder}/signed_nda`,
+      );
+
+      const signedEngagementLetterUrls =
+        await this.bunnyService.uploadMultipleFiles(
+          files.signed_engagement_letter || [],
+          `kyc/${companyFolder}/signed_engagement_letter`,
+        );
+
+      await this.googleSheetsService.appendRow([
+        createKycDto.company_name,
+
+        createKycDto.cin,
+
+        createKycDto.date_of_incorporation,
+
+        createKycDto.pan,
+
+        createKycDto.gstin,
+
+        createKycDto.nature_of_business,
+
+        createKycDto.registered_office_address,
+
+        createKycDto.business_addresses,
+
+        createKycDto.contact_person_name,
+
+        createKycDto.contact_email,
+
+        createKycDto.contact_number,
+
+        panUploadUrls.join('\n'),
+
+        gstUploadUrls.join('\n'),
+
+        signedNdaUrls.join('\n'),
+
+        signedEngagementLetterUrls.join('\n'),
+      ]);
+
+      await this.db
+        .update(formSubmissionsTable)
+        .set({
+          payload: {
+            files: {
+              pan_upload: panUploadUrls,
+
+              gst_upload: gstUploadUrls,
+
+              signed_nda: signedNdaUrls,
+
+              signed_engagement_letter: signedEngagementLetterUrls,
+            },
+          },
+        })
+        .where(eq(formSubmissionsTable.id, submissionId));
+
+      const html = this.templateService.render(
+        'kyc_template',
+
+        {
+          service_name: 'Financial Reporting Pack Download',
+
+          company_name: createKycDto.company_name,
+
+          cin: createKycDto.cin,
+
+          date_of_incorporation: createKycDto.date_of_incorporation,
+
+          pan: createKycDto.pan,
+
+          gstin: createKycDto.gstin,
+
+          nature_of_business: createKycDto.nature_of_business,
+
+          registered_office_address: createKycDto.registered_office_address,
+
+          business_addresses: createKycDto.business_addresses,
+
+          contact_person_name: createKycDto.contact_person_name,
+
+          contact_email: createKycDto.contact_email,
+
+          contact_number: createKycDto.contact_number,
+
+          pan_upload_links: panUploadUrls
+            .map((url) => `<a href="${url}" target="_blank">${url}</a>`)
+            .join('<br/>'),
+
+          gst_upload_links: gstUploadUrls
+            .map((url) => `<a href="${url}" target="_blank">${url}</a>`)
+            .join('<br/>'),
+
+          signed_nda_links: signedNdaUrls
+            .map((url) => `<a href="${url}" target="_blank">${url}</a>`)
+            .join('<br/>'),
+
+          signed_engagement_letter_links: signedEngagementLetterUrls
+            .map((url) => `<a href="${url}" target="_blank">${url}</a>`)
+            .join('<br/>'),
+        },
+      );
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.KYC,
+
+          subject: 'Kyc Form Details',
+
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({
+              email_sent: true,
+            })
+            .where(eq(formSubmissionsTable.id, submissionId));
+        })
+        .catch((err) => {
+          console.error('ACTUAL EMAIL ERROR:', err);
+        });
+
+      console.log('Background upload completed');
+    } catch (error) {
+      console.error('Background upload failed', error);
+    }
+  }
+
+  async kyc(
+    createKycDto: CreateKycDto,
+
+    files: {
+      pan_upload?: Express.Multer.File[];
+      gst_upload?: Express.Multer.File[];
+      signed_nda?: Express.Multer.File[];
+      signed_engagement_letter?: Express.Multer.File[];
+    },
+  ) {
+    try {
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createKycDto.form_id,
+
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+
+          payload: {
+            ...createKycDto,
+
+            files: {},
+          },
+        })
+        .returning({
+          id: formSubmissionsTable.id,
+        });
+
+      const companyFolder = this.bunnyService.sanitizeFolderName(
+        createKycDto.company_name,
+      );
+
+      void this.processUploads(
+        createKycDto,
+        files,
+
+        companyFolder,
+
+        inserted.id,
+      );
+
+      // const [inserted] = await this.db
+      //   .insert(formSubmissionsTable)
+      //   .values({
+      //     form_id: createServiceDtoTaigasOne.form_id,
+
+      //     sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+
+      //     payload,
+      //   })
+      //   .returning({
+      //     id: formSubmissionsTable.id,
+      //   });
+
+      // if (!inserted) {
+      //   throw new Error('Insertion failed');
+      // }
+
+      // const id = inserted.id;
+
+      // const html = this.templateService.render('common_ebook_template', {
+      //   ebook_name: 'Financial Reporting Pack Download',
+      // });
+
+      // void this.emailService
+      //   .sendEmail({
+      //     to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+
+      //     subject: 'Financial Reporting Pack Download',
+
+      //     html,
+      //   })
+      //   .then(async () => {
+      //     await this.db
+      //       .update(formSubmissionsTable)
+      //       .set({
+      //         email_sent: true,
+      //       })
+      //       .where(eq(formSubmissionsTable.id, id));
+      //   })
+      //   .catch((err) => {
+      //     console.error('ACTUAL EMAIL ERROR:', err);
+      //   });
+
+      return {
+        message: 'Form submitted successfully!',
+      };
+    } catch (error) {
+      console.error('Insert failed:', error);
+
+      throw error;
+    }
+  }
 
   async taigasOne(createServiceDtoTaigasOne: CreateServiceDtoTaigasOne) {
     try {

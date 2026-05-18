@@ -1,8 +1,10 @@
 import {
+  IsDateString,
   IsEmail,
   IsNotEmpty,
   IsString,
   IsUUID,
+  Length,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -963,6 +965,75 @@ export class CreateEbookYfpfe {
   @IsString()
   @IsNotEmpty()
   currency: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  form_id: string;
+}
+
+export class CreateKycDto {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(150)
+  company_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(50)
+  cin: string;
+
+  @IsDateString()
+  @IsNotEmpty()
+  date_of_incorporation: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(10, 10)
+  pan: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(15, 15)
+  gstin: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(150)
+  nature_of_business: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(5)
+  @MaxLength(500)
+  registered_office_address: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(5)
+  @MaxLength(1000)
+  business_addresses: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(100)
+  contact_person_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  @MaxLength(150)
+  contact_email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(15)
+  contact_number: string;
 
   @IsString()
   @IsNotEmpty()

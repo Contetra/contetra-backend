@@ -1,6 +1,8 @@
 import * as crypto from 'crypto';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
+import * as fs from 'fs';
 
 @Injectable()
 export class BunnyService {
@@ -30,5 +32,60 @@ export class BunnyService {
       .replace(/=+$/, '');
 
     return `${cleanBaseUrl}${path}?token=${signature}&expires=${expiration}`;
+  }
+
+  sanitizeFolderName(name: string): string {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  async uploadFile(
+    file: Express.Multer.File,
+
+    folderPath: string,
+  ): Promise<string> {
+    const storageZone = this.config.get<string>('BUNNY_STORAGE_ZONE');
+
+    const apiKey = this.config.get<string>('BUNNY_STORAGE_API_KEY');
+
+    const cdnUrl = this.config.get<string>('BUNNY_CDN_URL');
+
+    const region = this.config.get<string>('BUNNY_STORAGE_REGION') || 'storage';
+
+    if (!storageZone || !apiKey || !cdnUrl) {
+      throw new Error('Bunny config missing');
+    }
+
+    const cleanFolder = folderPath.replace(/^\/+/, '').replace(/\/+$/, '');
+
+    const remoteFilePath = `${cleanFolder}/${file.filename}`;
+
+    const uploadUrl = `https://${region}.bunnycdn.com/${storageZone}/${remoteFilePath}`;
+
+    const fileBuffer = fs.readFileSync(file.path);
+
+    await axios.put(uploadUrl, fileBuffer, {
+      headers: {
+        AccessKey: apiKey,
+        'Content-Type': file.mimetype,
+      },
+
+      maxBodyLength: Infinity,
+    });
+
+    fs.unlinkSync(file.path);
+
+    return `${cdnUrl}/${remoteFilePath}`;
+  }
+
+  async uploadMultipleFiles(
+    files: Express.Multer.File[],
+
+    folderPath: string,
+  ): Promise<string[]> {
+    return Promise.all(files.map((file) => this.uploadFile(file, folderPath)));
   }
 }

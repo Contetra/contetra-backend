@@ -1,4 +1,10 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseInterceptors,
+  UploadedFiles,
+} from '@nestjs/common';
 import { ServicesService } from './services.service';
 import {
   CreateServiceDtoTaigasOne,
@@ -16,9 +22,42 @@ import {
 import { Public } from 'src/common/decorators/public.decorator';
 import { CaptchaProtected } from 'src/common/decorators/captcha-protected.decorator';
 
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { multerOptions } from 'src/common/multer/multer.options';
+import { CreateKycDto } from 'src/ebook/dto/create-ebook.dto';
+
 @Controller('services')
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
+
+  @Post('kyc')
+  @Public()
+  @CaptchaProtected()
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'pan_upload', maxCount: 5 },
+        { name: 'gst_upload', maxCount: 5 },
+        { name: 'signed_nda', maxCount: 5 },
+        { name: 'signed_engagement_letter', maxCount: 5 },
+      ],
+      multerOptions,
+    ),
+  )
+  kyc(
+    @Body()
+    createKycDto: CreateKycDto,
+
+    @UploadedFiles()
+    files: {
+      pan_upload?: Express.Multer.File[];
+      gst_upload?: Express.Multer.File[];
+      signed_nda?: Express.Multer.File[];
+      signed_engagement_letter?: Express.Multer.File[];
+    },
+  ) {
+    return this.servicesService.kyc(createKycDto, files);
+  }
 
   @Post('taigasOne')
   @Public()

@@ -1,6 +1,8 @@
 # Ignore Drizzle migrations
 src/common/drizzle/migrations/
 
+google-service-account.json
+
 # compiled output
 /dist
 /node_modules
