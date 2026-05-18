@@ -7,5 +7,13 @@ export const EMAIL_RECIPIENTS = {
     'palak.kedia@contetra.com',
     'kashish.rajpal@contetra.com',
   ],
-  KYC: ['ssoni608@gmail.com'],
+  KYC: [
+    'shuaib.ansari@contetra.com',
+    'bhavesh.sonavane@contetra.com',
+    'tejas.savla@contetra.com',
+    'chitra.parameswaran@contetra.com',
+    'palak.kedia@contetra.com',
+    'kashish.rajpal@contetra.com',
+    'pankaj.sakpal@contetra.com',
+  ],
 };
