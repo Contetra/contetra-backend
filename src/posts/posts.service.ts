@@ -17,7 +17,7 @@ import {
   userTable,
 } from 'src/common/drizzle/schema';
 import { JwtPayload } from 'src/types/auth';
-import { and, asc, desc, eq, ilike, inArray, ne, SQL, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike, inArray, SQL, sql } from 'drizzle-orm';
 import { UpdatePostDto } from './dto/update-post.dto';
 
 export type Post = typeof postsTable.$inferSelect;
@@ -80,12 +80,17 @@ export class PostsService {
   }
 
   async updateBlog(updatePostDto: UpdatePostDto) {
-    const { id, title, slug, content, feature_image_url, excerpt } =
+    const { id, title, slug, content, feature_image_url, excerpt, status } =
       updatePostDto;
 
-    const hasUpdates = [title, slug, content, feature_image_url, excerpt].some(
-      (field) => field !== undefined,
-    );
+    const hasUpdates = [
+      title,
+      slug,
+      content,
+      feature_image_url,
+      excerpt,
+      status,
+    ].some((field) => field !== undefined);
 
     if (!hasUpdates) {
       throw new BadRequestException(
@@ -102,26 +107,8 @@ export class PostsService {
       throw new NotFoundException('Post not found');
     }
 
-    if (slug) {
-      const slugExists = await this.db
-        .select({ id: postsTable.id })
-        .from(postsTable)
-        .where(and(eq(postsTable.slug, slug), ne(postsTable.id, id)));
-
-      if (slugExists.length > 0) {
-        throw new ConflictException('Slug already exists');
-      }
-    }
-
     try {
-      const updateData: {
-        title?: string;
-        slug?: string;
-        content?: string;
-        feature_image_url?: string;
-        excerpt?: string;
-        updated_at: Date;
-      } = {
+      const updateData: Partial<NewPost> = {
         updated_at: new Date(),
       };
 
@@ -139,6 +126,9 @@ export class PostsService {
       }
       if (excerpt !== undefined) {
         updateData.excerpt = excerpt;
+      }
+      if (status !== undefined) {
+        updateData.status = status;
       }
 
       await this.db
@@ -190,6 +180,7 @@ export class PostsService {
         feature_image_url: postsTable.feature_image_url,
         created_at: postsTable.created_at,
         excerpt: postsTable.excerpt,
+        status: postsTable.status,
 
         authors: sql<string[]>`
         array_remove(array_agg(DISTINCT ${userTable.name}), NULL)

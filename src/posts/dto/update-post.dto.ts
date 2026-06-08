@@ -1,4 +1,5 @@
 import {
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -6,10 +7,13 @@ import {
   MinLength,
 } from 'class-validator';
 
+export const POST_STATUSES = ['Draft', 'Published'] as const;
+export type PostStatus = (typeof POST_STATUSES)[number];
+
 export class UpdatePostDto {
   @IsUUID()
   @IsNotEmpty()
-  id: string;
+  id!: string;
 
   @IsOptional()
   @IsString()
@@ -39,4 +43,10 @@ export class UpdatePostDto {
   @IsString()
   @IsNotEmpty()
   feature_image_url?: string;
+
+  @IsOptional()
+  @IsIn(POST_STATUSES)
+  @IsString()
+  @IsNotEmpty()
+  status?: PostStatus;
 }
