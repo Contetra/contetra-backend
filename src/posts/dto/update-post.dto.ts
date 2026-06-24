@@ -1,4 +1,6 @@
+import { Type } from 'class-transformer';
 import {
+  IsDate,
   IsIn,
   IsNotEmpty,
   IsOptional,
@@ -14,6 +16,19 @@ export class UpdatePostDto {
   @IsUUID()
   @IsNotEmpty()
   id!: string;
+
+  @IsOptional()
+  @IsUUID()
+  author_id?: string;
+
+  @IsOptional()
+  @IsUUID()
+  category_id?: string;
+
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  created_at?: Date;
 
   @IsOptional()
   @IsString()
@@ -49,4 +64,24 @@ export class UpdatePostDto {
   @IsString()
   @IsNotEmpty()
   status?: PostStatus;
+
+  @IsOptional()
+  @IsString()
+  meta_title?: string | null;
+
+  @IsOptional()
+  @IsString()
+  meta_description?: string | null;
+
+  @IsOptional()
+  @IsString()
+  meta_keywords?: string | null;
+
+  @IsOptional()
+  @IsString()
+  meta_og_title?: string | null;
+
+  @IsOptional()
+  @IsString()
+  meta_og_description?: string | null;
 }

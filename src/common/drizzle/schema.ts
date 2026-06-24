@@ -162,6 +162,8 @@ export const postMetaDataTable = pgTable('post_meta_data', {
   title: varchar('title', { length: 255 }),
   description: varchar('description', { length: 1000 }),
   keywords: varchar('keywords', { length: 500 }),
+  ogTitle: varchar('ogTitle', { length: 255 }),
+  ogDescription: varchar('ogDescription', { length: 1000 }),
   created_at: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),

@@ -11,6 +11,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   authorTable,
   categoriesTable,
+  postMetaDataTable,
   postsAuthorsTable,
   postsCategoriesTable,
   postsTable,
@@ -22,6 +23,12 @@ import { UpdatePostDto } from './dto/update-post.dto';
 
 export type Post = typeof postsTable.$inferSelect;
 export type NewPost = typeof postsTable.$inferInsert;
+export type NewPostMetaData = typeof postMetaDataTable.$inferInsert;
+
+const toNullableString = (value: unknown): string | null => {
+  if (value === null || typeof value === 'string') return value;
+  throw new BadRequestException('Metadata values must be strings or null');
+};
 
 @Injectable()
 export class PostsService {
@@ -80,8 +87,23 @@ export class PostsService {
   }
 
   async updateBlog(updatePostDto: UpdatePostDto) {
-    const { id, title, slug, content, feature_image_url, excerpt, status } =
-      updatePostDto;
+    const {
+      id,
+      title,
+      slug,
+      content,
+      feature_image_url,
+      excerpt,
+      status,
+      author_id,
+      category_id,
+      created_at,
+      meta_title,
+      meta_description,
+      meta_keywords,
+      meta_og_title,
+      meta_og_description,
+    } = updatePostDto;
 
     const hasUpdates = [
       title,
@@ -90,6 +112,14 @@ export class PostsService {
       feature_image_url,
       excerpt,
       status,
+      author_id,
+      category_id,
+      created_at,
+      meta_title,
+      meta_description,
+      meta_keywords,
+      meta_og_title,
+      meta_og_description,
     ].some((field) => field !== undefined);
 
     if (!hasUpdates) {
@@ -108,38 +138,93 @@ export class PostsService {
     }
 
     try {
-      const updateData: Partial<NewPost> = {
-        updated_at: new Date(),
-      };
+      return await this.db.transaction(async (tx) => {
+        const updateData: Partial<NewPost> = {
+          updated_at: new Date(),
+        };
 
-      if (title !== undefined) {
-        updateData.title = title;
-      }
-      if (slug !== undefined) {
-        updateData.slug = slug;
-      }
-      if (content !== undefined) {
-        updateData.content = content;
-      }
-      if (feature_image_url !== undefined) {
-        updateData.feature_image_url = feature_image_url;
-      }
-      if (excerpt !== undefined) {
-        updateData.excerpt = excerpt;
-      }
-      if (status !== undefined) {
-        updateData.status = status;
-      }
+        if (title !== undefined) updateData.title = title;
+        if (slug !== undefined) updateData.slug = slug;
+        if (content !== undefined) updateData.content = content;
+        if (feature_image_url !== undefined) {
+          updateData.feature_image_url = feature_image_url;
+        }
+        if (excerpt !== undefined) updateData.excerpt = excerpt;
+        if (status !== undefined) updateData.status = status;
+        if (created_at !== undefined) updateData.created_at = created_at;
 
-      await this.db
-        .update(postsTable)
-        .set(updateData)
-        .where(eq(postsTable.id, id));
+        await tx
+          .update(postsTable)
+          .set(updateData)
+          .where(eq(postsTable.id, id));
 
-      return {
-        message: 'Post updated successfully',
-        post_id: id,
-      };
+        if (author_id !== undefined) {
+          await tx
+            .delete(postsAuthorsTable)
+            .where(eq(postsAuthorsTable.post_id, id));
+          await tx.insert(postsAuthorsTable).values({
+            post_id: id,
+            author_id,
+          });
+        }
+
+        if (category_id !== undefined) {
+          await tx
+            .delete(postsCategoriesTable)
+            .where(eq(postsCategoriesTable.post_id, id));
+          await tx.insert(postsCategoriesTable).values({
+            post_id: id,
+            category_id,
+          });
+        }
+
+        const hasMetadataUpdates = [
+          meta_title,
+          meta_description,
+          meta_keywords,
+          meta_og_title,
+          meta_og_description,
+        ].some((field) => field !== undefined);
+
+        if (hasMetadataUpdates) {
+          const metadataUpdate = {
+            updated_at: new Date(),
+            ...(meta_title !== undefined && {
+              title: toNullableString(meta_title),
+            }),
+            ...(meta_description !== undefined && {
+              description: toNullableString(meta_description),
+            }),
+            ...(meta_keywords !== undefined && {
+              keywords: toNullableString(meta_keywords),
+            }),
+            ...(meta_og_title !== undefined && {
+              ogTitle: toNullableString(meta_og_title),
+            }),
+            ...(meta_og_description !== undefined && {
+              ogDescription: toNullableString(meta_og_description),
+            }),
+          } satisfies Partial<NewPostMetaData>;
+
+          const updatedMetadata = await tx
+            .update(postMetaDataTable)
+            .set(metadataUpdate)
+            .where(eq(postMetaDataTable.post_id, id))
+            .returning({ id: postMetaDataTable.id });
+
+          if (!updatedMetadata.length) {
+            await tx.insert(postMetaDataTable).values({
+              post_id: id,
+              ...metadataUpdate,
+            });
+          }
+        }
+
+        return {
+          message: 'Post updated successfully',
+          post_id: id,
+        };
+      });
     } catch (error) {
       console.error('Update failed:', error);
       throw error;
@@ -342,6 +427,11 @@ export class PostsService {
         feature_image_url: postsTable.feature_image_url,
         created_at: postsTable.created_at,
         excerpt: postsTable.excerpt,
+        meta_title: postMetaDataTable.title,
+        meta_description: postMetaDataTable.description,
+        meta_keywords: postMetaDataTable.keywords,
+        og_title: postMetaDataTable.ogTitle,
+        og_description: postMetaDataTable.ogDescription,
 
         author_ids: sql<string[]>`
         array_remove(array_agg(DISTINCT ${authorTable.id}), NULL)
@@ -371,8 +461,9 @@ export class PostsService {
         categoriesTable,
         eq(postsCategoriesTable.category_id, categoriesTable.id),
       )
+      .leftJoin(postMetaDataTable, eq(postsTable.id, postMetaDataTable.post_id))
       .where(eq(postsTable.slug, slug))
-      .groupBy(postsTable.id)
+      .groupBy(postsTable.id, postMetaDataTable.id)
       .limit(1);
 
     if (!blogResult.length) return null;
