@@ -35,12 +35,13 @@ export class PostsController {
   findAll(
     @Query('page') page: string,
     @Query('limit') limit: string,
+    @Query('search') search: string,
     @Query('sortOrder') sortOrder: 'asc' | 'desc',
   ) {
     return this.postsService.findAll(
       page ? Number(page) : 1,
       limit ? Number(limit) : 10,
-      undefined,
+      search ? search : '',
       sortOrder ? sortOrder : 'desc',
     );
   }

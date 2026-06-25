@@ -244,9 +244,9 @@ export class PostsService {
         ? asc(postsTable.created_at)
         : desc(postsTable.created_at);
 
-    // 🔥 Only search condition now
-    const whereConditions = search
-      ? ilike(postsTable.title, `${search}%`)
+    const normalizedSearch = search?.trim();
+    const whereConditions = normalizedSearch
+      ? ilike(postsTable.title, `%${normalizedSearch}%`)
       : undefined;
 
     // Count with search applied
@@ -266,6 +266,11 @@ export class PostsService {
         created_at: postsTable.created_at,
         excerpt: postsTable.excerpt,
         status: postsTable.status,
+        meta_title: postMetaDataTable.title,
+        meta_description: postMetaDataTable.description,
+        meta_keywords: postMetaDataTable.keywords,
+        meta_og_title: postMetaDataTable.ogTitle,
+        meta_og_description: postMetaDataTable.ogDescription,
 
         authors: sql<string[]>`
         array_remove(array_agg(DISTINCT ${userTable.name}), NULL)
@@ -287,8 +292,9 @@ export class PostsService {
         categoriesTable,
         eq(postsCategoriesTable.category_id, categoriesTable.id),
       )
-      // .where(whereConditions)
-      .groupBy(postsTable.id)
+      .leftJoin(postMetaDataTable, eq(postsTable.id, postMetaDataTable.post_id))
+      .where(whereConditions)
+      .groupBy(postsTable.id, postMetaDataTable.id)
       .orderBy(orderDirection)
       .limit(limit)
       .offset(offset);
