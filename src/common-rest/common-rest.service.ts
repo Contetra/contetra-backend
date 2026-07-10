@@ -1,4 +1,10 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   CreateAuthors,
   CreateCategories,
@@ -12,12 +18,23 @@ import {
   categoriesTable,
   formsTable,
   formSubmissionsTable,
+  formTypesTable,
   userTable,
 } from 'src/common/drizzle/schema';
-import { eq, or } from 'drizzle-orm';
+import { and, eq, ilike, inArray, or } from 'drizzle-orm';
 import { EMAIL_RECIPIENTS } from 'src/email/email-recipients';
 import { EmailService } from 'src/email/email.service';
 import { EmailTemplateService } from 'src/email/email-template.service';
+import {
+  CreateFormDto,
+  GetFormsQueryDto,
+  UpdateFormDto,
+} from './dto/forms.dto';
+import {
+  CreateFormTypeDto,
+  GetFormTypesQueryDto,
+  UpdateFormTypeDto,
+} from './dto/form-types.dto';
 
 @Injectable()
 export class CommonRestService {
@@ -112,15 +129,218 @@ export class CommonRestService {
     return `This action removes a #${id} commonRest`;
   }
 
-  async getForms(formid?: string) {
-    const forms = await this.db
-      .select({
-        id: formsTable.id,
-        form_name: formsTable.form_name,
-      })
-      .from(formsTable)
-      .where(formid ? eq(formsTable.id, formid) : undefined);
-    return forms;
+  async getForms(query: GetFormsQueryDto) {
+    try {
+      const forms = await this.db
+        .select({
+          id: formsTable.id,
+          form_name: formsTable.form_name,
+          form_type_id: formsTable.form_type_id,
+          created_at: formsTable.created_at,
+          updated_at: formsTable.updated_at,
+        })
+        .from(formsTable)
+        .where(
+          and(
+            query.formid ? eq(formsTable.id, query.formid) : undefined,
+            query.search
+              ? ilike(formsTable.form_name, `%${query.search}%`)
+              : undefined,
+          ),
+        );
+
+      return forms;
+    } catch (error: unknown) {
+      console.error('Error fetching forms:', error);
+      throw error;
+    }
+  }
+
+  async createForm(createFormDto: CreateFormDto) {
+    try {
+      const [form] = await this.db
+        .insert(formsTable)
+        .values({
+          form_name: createFormDto.form_name,
+          form_type_id: createFormDto.form_type_id,
+        })
+        .returning();
+
+      if (!form) {
+        throw new Error('Form creation failed');
+      }
+
+      return form;
+    } catch (error: unknown) {
+      console.error('Error creating form:', error);
+      throw error;
+    }
+  }
+
+  async updateForm(id: string, updateFormDto: UpdateFormDto) {
+    try {
+      if (
+        updateFormDto.form_name === undefined &&
+        updateFormDto.form_type_id === undefined
+      ) {
+        throw new BadRequestException('At least one field must be provided');
+      }
+
+      const [form] = await this.db
+        .update(formsTable)
+        .set({
+          ...(updateFormDto.form_name !== undefined && {
+            form_name: updateFormDto.form_name,
+          }),
+          ...(updateFormDto.form_type_id !== undefined && {
+            form_type_id: updateFormDto.form_type_id,
+          }),
+          updated_at: new Date(),
+        })
+        .where(eq(formsTable.id, id))
+        .returning();
+
+      if (!form) {
+        throw new NotFoundException('Form not found');
+      }
+
+      return form;
+    } catch (error: unknown) {
+      console.error('Error updating form:', error);
+      throw error;
+    }
+  }
+
+  async deleteForm(id: string) {
+    try {
+      return await this.db.transaction(async (tx) => {
+        await tx
+          .delete(formSubmissionsTable)
+          .where(eq(formSubmissionsTable.form_id, id));
+
+        const [deletedForm] = await tx
+          .delete(formsTable)
+          .where(eq(formsTable.id, id))
+          .returning({ id: formsTable.id });
+
+        if (!deletedForm) {
+          throw new NotFoundException('Form not found');
+        }
+
+        return { message: 'Form deleted successfully' };
+      });
+    } catch (error: unknown) {
+      console.error('Error deleting form:', error);
+      throw error;
+    }
+  }
+
+  async getFormTypes(query: GetFormTypesQueryDto) {
+    try {
+      const formTypes = await this.db
+        .select({
+          id: formTypesTable.id,
+          name: formTypesTable.name,
+          created_at: formTypesTable.created_at,
+          updated_at: formTypesTable.updated_at,
+        })
+        .from(formTypesTable)
+        .where(
+          and(
+            query.formtypeid
+              ? eq(formTypesTable.id, query.formtypeid)
+              : undefined,
+            query.search
+              ? ilike(formTypesTable.name, `%${query.search}%`)
+              : undefined,
+          ),
+        );
+
+      return formTypes;
+    } catch (error: unknown) {
+      console.error('Error fetching form types:', error);
+      throw error;
+    }
+  }
+
+  async createFormType(createFormTypeDto: CreateFormTypeDto) {
+    try {
+      const [formType] = await this.db
+        .insert(formTypesTable)
+        .values({ name: createFormTypeDto.name })
+        .returning();
+
+      if (!formType) {
+        throw new Error('Form type creation failed');
+      }
+
+      return formType;
+    } catch (error: unknown) {
+      console.error('Error creating form type:', error);
+      throw error;
+    }
+  }
+
+  async updateFormType(id: string, updateFormTypeDto: UpdateFormTypeDto) {
+    try {
+      if (updateFormTypeDto.name === undefined) {
+        throw new BadRequestException('At least one field must be provided');
+      }
+
+      const [formType] = await this.db
+        .update(formTypesTable)
+        .set({
+          name: updateFormTypeDto.name,
+          updated_at: new Date(),
+        })
+        .where(eq(formTypesTable.id, id))
+        .returning();
+
+      if (!formType) {
+        throw new NotFoundException('Form type not found');
+      }
+
+      return formType;
+    } catch (error: unknown) {
+      console.error('Error updating form type:', error);
+      throw error;
+    }
+  }
+
+  async deleteFormType(id: string) {
+    try {
+      return await this.db.transaction(async (tx) => {
+        const relatedForms = await tx
+          .select({ id: formsTable.id })
+          .from(formsTable)
+          .where(eq(formsTable.form_type_id, id));
+
+        if (relatedForms.length > 0) {
+          await tx.delete(formSubmissionsTable).where(
+            inArray(
+              formSubmissionsTable.form_id,
+              relatedForms.map((form) => form.id),
+            ),
+          );
+        }
+
+        await tx.delete(formsTable).where(eq(formsTable.form_type_id, id));
+
+        const [deletedFormType] = await tx
+          .delete(formTypesTable)
+          .where(eq(formTypesTable.id, id))
+          .returning({ id: formTypesTable.id });
+
+        if (!deletedFormType) {
+          throw new NotFoundException('Form type not found');
+        }
+
+        return { message: 'Form type deleted successfully' };
+      });
+    } catch (error: unknown) {
+      console.error('Error deleting form type:', error);
+      throw error;
+    }
   }
 
   async contactUs(createContactUs: CreateContactUs) {

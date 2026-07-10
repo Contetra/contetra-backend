@@ -25,6 +25,7 @@ import { CaptchaProtected } from 'src/common/decorators/captcha-protected.decora
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/common/multer/multer.options';
 import { CreateKycDto } from 'src/ebook/dto/create-ebook.dto';
+import { CreateAutomationServiceDto } from './dto/create-automation-service.dto';
 
 @Controller('services')
 export class ServicesController {
@@ -134,5 +135,12 @@ export class ServicesController {
   @CaptchaProtected()
   sbfms(@Body() createServiceDtoSbfms: CreateServiceDtoSbfms) {
     return this.servicesService.sbfms(createServiceDtoSbfms);
+  }
+
+  @Post('automation')
+  @Public()
+  @CaptchaProtected()
+  automation(@Body() createAutomationServiceDto: CreateAutomationServiceDto) {
+    return this.servicesService.automation(createAutomationServiceDto);
   }
 }

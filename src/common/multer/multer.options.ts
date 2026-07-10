@@ -1,6 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
+import type { MulterModuleOptions } from '@nestjs/platform-express';
 
-import { diskStorage, Options } from 'multer';
+import { diskStorage } from 'multer';
 
 import { extname } from 'path';
 
@@ -14,7 +15,7 @@ const allowedMimeTypes = [
   'image/gif',
 ];
 
-export const multerOptions: Options = {
+export const multerOptions: MulterModuleOptions = {
   storage: diskStorage({
     destination: './uploads',
 
@@ -38,6 +39,7 @@ export const multerOptions: Options = {
     if (!allowedMimeTypes.includes(file.mimetype)) {
       cb(
         new BadRequestException(`Unsupported file type: ${file.originalname}`),
+        false,
       );
 
       return;

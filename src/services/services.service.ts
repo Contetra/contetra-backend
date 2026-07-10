@@ -22,6 +22,7 @@ import { EMAIL_RECIPIENTS } from 'src/email/email-recipients';
 import { eq } from 'drizzle-orm';
 import { CreateKycDto } from 'src/ebook/dto/create-ebook.dto';
 import { GoogleSheetsService } from 'src/common/google/google-sheets.service';
+import { CreateAutomationServiceDto } from './dto/create-automation-service.dto';
 
 @Injectable()
 export class ServicesService {
@@ -948,6 +949,60 @@ export class ServicesService {
         message: 'Message sent successfully!',
       };
     } catch (error) {
+      console.error('Insert failed:', error);
+      throw error;
+    }
+  }
+
+  async automation(createAutomationServiceDto: CreateAutomationServiceDto) {
+    try {
+      const [inserted] = await this.db
+        .insert(formSubmissionsTable)
+        .values({
+          form_id: createAutomationServiceDto.form_id,
+          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          payload: {
+            name: createAutomationServiceDto.name,
+            work_email: createAutomationServiceDto.work_email,
+            company: createAutomationServiceDto.company,
+            department: createAutomationServiceDto.department,
+            process_to_automate: createAutomationServiceDto.process_to_automate,
+            tools_involved: createAutomationServiceDto.tools_involved,
+          },
+        })
+        .returning({ id: formSubmissionsTable.id });
+
+      if (!inserted) {
+        throw new Error('Insertion failed');
+      }
+
+      const html = this.templateService.render('automation_service_template', {
+        name: createAutomationServiceDto.name,
+        work_email: createAutomationServiceDto.work_email,
+        company: createAutomationServiceDto.company,
+        department: createAutomationServiceDto.department,
+        process_to_automate: createAutomationServiceDto.process_to_automate,
+        tools_involved: createAutomationServiceDto.tools_involved,
+      });
+
+      void this.emailService
+        .sendEmail({
+          to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
+          subject: 'Process Automation Enquiry',
+          html,
+        })
+        .then(async () => {
+          await this.db
+            .update(formSubmissionsTable)
+            .set({ email_sent: true })
+            .where(eq(formSubmissionsTable.id, inserted.id));
+        })
+        .catch((error: unknown) => {
+          console.error('ACTUAL EMAIL ERROR:', error);
+        });
+
+      return { message: 'Message sent successfully!' };
+    } catch (error: unknown) {
       console.error('Insert failed:', error);
       throw error;
     }

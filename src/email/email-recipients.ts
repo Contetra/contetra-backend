@@ -9,6 +9,7 @@ export const EMAIL_RECIPIENTS = {
     'ankita.kedare@contetra.com',
     'jay.jani@contetra.com',
     'anuja.shende@contetra.com',
+    'shubhams000ni@gmail.com',
   ],
   KYC: [
     'shuaib.ansari@contetra.com',
