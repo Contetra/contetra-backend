@@ -23,4 +23,14 @@ export const EMAIL_RECIPIENTS = {
     'jay.jani@contetra.com',
     'anuja.shende@contetra.com',
   ],
+  AUTOMATION: [
+    'chitra.parameswaran@contetra.com',
+    'tejas.savla@contetra.com',
+    'aastha.varshneya@contetra.com',
+    'ankita.kedare@contetra.com',
+    'jay.jani@contetra.com',
+    'pankaj.sakpal@contetra.com',
+    'palak.kedia@contetra.com',
+    'kashish.rajpal@contetra.com',
+  ],
 };

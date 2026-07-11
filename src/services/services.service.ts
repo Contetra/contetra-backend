@@ -960,7 +960,7 @@ export class ServicesService {
         .insert(formSubmissionsTable)
         .values({
           form_id: createAutomationServiceDto.form_id,
-          sent_to: EMAIL_RECIPIENTS.COMMON_CONTETRA?.join(', '),
+          sent_to: EMAIL_RECIPIENTS.AUTOMATION?.join(', '),
           payload: {
             name: createAutomationServiceDto.name,
             work_email: createAutomationServiceDto.work_email,
