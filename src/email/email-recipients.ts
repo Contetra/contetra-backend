@@ -9,7 +9,6 @@ export const EMAIL_RECIPIENTS = {
     'ankita.kedare@contetra.com',
     'jay.jani@contetra.com',
     'anuja.shende@contetra.com',
-    'shubhams000ni@gmail.com',
   ],
   KYC: [
     'shuaib.ansari@contetra.com',
@@ -18,10 +17,6 @@ export const EMAIL_RECIPIENTS = {
     'chitra.parameswaran@contetra.com',
     'palak.kedia@contetra.com',
     'kashish.rajpal@contetra.com',
-    'pankaj.sakpal@contetra.com',
-    'ankita.kedare@contetra.com',
-    'jay.jani@contetra.com',
-    'anuja.shende@contetra.com',
   ],
   AUTOMATION: [
     'chitra.parameswaran@contetra.com',
