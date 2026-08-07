@@ -48,3 +48,44 @@ export const multerOptions: MulterModuleOptions = {
     cb(null, true);
   },
 };
+
+const allowedImageMimeTypes = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+];
+
+export const imageMulterOptions: MulterModuleOptions = {
+  storage: diskStorage({
+    destination: './uploads',
+
+    filename: (_req, file, cb) => {
+      const uniqueName =
+        Date.now() +
+        '-' +
+        Math.round(Math.random() * 1e9) +
+        extname(file.originalname);
+
+      cb(null, uniqueName);
+    },
+  }),
+
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+    files: 1,
+  },
+
+  fileFilter: (_req, file, cb) => {
+    if (!allowedImageMimeTypes.includes(file.mimetype)) {
+      cb(
+        new BadRequestException(`Unsupported file type: ${file.originalname}`),
+        false,
+      );
+
+      return;
+    }
+
+    cb(null, true);
+  },
+};

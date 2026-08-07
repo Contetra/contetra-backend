@@ -27,6 +27,17 @@ import {
   GetFormTypesQueryDto,
   UpdateFormTypeDto,
 } from './dto/form-types.dto';
+import {
+  CreateDepartmentDto,
+  GetDepartmentsQueryDto,
+  UpdateDepartmentDto,
+} from './dto/department.dto';
+import {
+  CreateDesignationDto,
+  GetDesignationsQueryDto,
+  UpdateDesignationDto,
+} from './dto/designation.dto';
+import { GetAuthorsQueryDto, UpdateAuthorDto } from './dto/authors.dto';
 
 @Controller('common-rest')
 export class CommonRestController {
@@ -52,6 +63,24 @@ export class CommonRestController {
   @Public()
   async getAllAuthors() {
     return this.commonRestService.getAllAuthors();
+  }
+
+  @Get('get-authors')
+  async getAuthorsList(@Query() query: GetAuthorsQueryDto) {
+    return this.commonRestService.getAuthorsList(query);
+  }
+
+  @Patch('update-authors/:id')
+  async updateAuthor(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateAuthorDto: UpdateAuthorDto,
+  ) {
+    return this.commonRestService.updateAuthor(id, updateAuthorDto);
+  }
+
+  @Delete('delete-authors/:id')
+  async deleteAuthor(@Param('id', ParseUUIDPipe) id: string) {
+    return this.commonRestService.deleteAuthor(id);
   }
 
   @Get('get-forms')
@@ -100,6 +129,52 @@ export class CommonRestController {
   @Delete('delete-form-types/:id')
   async deleteFormType(@Param('id', ParseUUIDPipe) id: string) {
     return this.commonRestService.deleteFormType(id);
+  }
+
+  @Get('get-departments')
+  async getDepartments(@Query() query: GetDepartmentsQueryDto) {
+    return this.commonRestService.getDepartments(query);
+  }
+
+  @Post('post-departments')
+  async createDepartment(@Body() createDepartmentDto: CreateDepartmentDto) {
+    return this.commonRestService.createDepartment(createDepartmentDto);
+  }
+
+  @Patch('update-departments/:id')
+  async updateDepartment(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateDepartmentDto: UpdateDepartmentDto,
+  ) {
+    return this.commonRestService.updateDepartment(id, updateDepartmentDto);
+  }
+
+  @Delete('delete-departments/:id')
+  async deleteDepartment(@Param('id', ParseUUIDPipe) id: string) {
+    return this.commonRestService.deleteDepartment(id);
+  }
+
+  @Get('get-designations')
+  async getDesignations(@Query() query: GetDesignationsQueryDto) {
+    return this.commonRestService.getDesignations(query);
+  }
+
+  @Post('post-designations')
+  async createDesignation(@Body() createDesignationDto: CreateDesignationDto) {
+    return this.commonRestService.createDesignation(createDesignationDto);
+  }
+
+  @Patch('update-designations/:id')
+  async updateDesignation(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateDesignationDto: UpdateDesignationDto,
+  ) {
+    return this.commonRestService.updateDesignation(id, updateDesignationDto);
+  }
+
+  @Delete('delete-designations/:id')
+  async deleteDesignation(@Param('id', ParseUUIDPipe) id: string) {
+    return this.commonRestService.deleteDesignation(id);
   }
 
   @Post('contact-us')

@@ -16,9 +16,13 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   authorTable,
   categoriesTable,
+  departmentTable,
+  designationTable,
   formsTable,
   formSubmissionsTable,
   formTypesTable,
+  postsAuthorsTable,
+  userDetailsTable,
   userTable,
 } from 'src/common/drizzle/schema';
 import { and, eq, ilike, inArray, or } from 'drizzle-orm';
@@ -35,6 +39,17 @@ import {
   GetFormTypesQueryDto,
   UpdateFormTypeDto,
 } from './dto/form-types.dto';
+import {
+  CreateDepartmentDto,
+  GetDepartmentsQueryDto,
+  UpdateDepartmentDto,
+} from './dto/department.dto';
+import {
+  CreateDesignationDto,
+  GetDesignationsQueryDto,
+  UpdateDesignationDto,
+} from './dto/designation.dto';
+import { GetAuthorsQueryDto, UpdateAuthorDto } from './dto/authors.dto';
 
 @Injectable()
 export class CommonRestService {
@@ -79,10 +94,10 @@ export class CommonRestService {
     const exists = await this.db
       .select()
       .from(authorTable)
-      .where(or(eq(authorTable.author_id, createAuthors.author_id)));
+      .where(eq(authorTable.author_id, createAuthors.author_id));
 
     if (exists.length > 0) {
-      throw new ConflictException('Name or Slug already exists');
+      throw new ConflictException('User is already an author');
     }
 
     const newAuthor = {
@@ -95,7 +110,100 @@ export class CommonRestService {
 
       return { message: 'Author created successfully' };
     } catch (error: unknown) {
-      console.error('Error inserting post:', error);
+      console.error('Error inserting author:', error);
+      throw error;
+    }
+  }
+
+  async getAuthorsList(query: GetAuthorsQueryDto) {
+    try {
+      const search = query.search?.trim();
+
+      const authors = await this.db
+        .select({
+          id: authorTable.id,
+          user_id: authorTable.author_id,
+          name: userTable.name,
+          email: userTable.email,
+          role: authorTable.role,
+          created_at: authorTable.created_at,
+          updated_at: authorTable.updated_at,
+        })
+        .from(authorTable)
+        .innerJoin(userTable, eq(authorTable.author_id, userTable.id))
+        .where(
+          and(
+            query.authorid ? eq(authorTable.id, query.authorid) : undefined,
+            search
+              ? or(
+                  ilike(userTable.name, `%${search}%`),
+                  ilike(userTable.email, `%${search}%`),
+                )
+              : undefined,
+          ),
+        );
+
+      return authors;
+    } catch (error: unknown) {
+      console.error('Error fetching authors:', error);
+      throw error;
+    }
+  }
+
+  async updateAuthor(id: string, updateAuthorDto: UpdateAuthorDto) {
+    try {
+      if (updateAuthorDto.role === undefined) {
+        throw new BadRequestException('At least one field must be provided');
+      }
+
+      const [author] = await this.db
+        .update(authorTable)
+        .set({
+          role: updateAuthorDto.role,
+          updated_at: new Date(),
+        })
+        .where(eq(authorTable.id, id))
+        .returning();
+
+      if (!author) {
+        throw new NotFoundException('Author not found');
+      }
+
+      return author;
+    } catch (error: unknown) {
+      console.error('Error updating author:', error);
+      throw error;
+    }
+  }
+
+  async deleteAuthor(id: string) {
+    try {
+      return await this.db.transaction(async (tx) => {
+        const assignedPosts = await tx
+          .select({ post_id: postsAuthorsTable.post_id })
+          .from(postsAuthorsTable)
+          .where(eq(postsAuthorsTable.author_id, id))
+          .limit(1);
+
+        if (assignedPosts.length > 0) {
+          throw new ConflictException(
+            'Cannot delete an author who has published posts',
+          );
+        }
+
+        const [deletedAuthor] = await tx
+          .delete(authorTable)
+          .where(eq(authorTable.id, id))
+          .returning({ id: authorTable.id });
+
+        if (!deletedAuthor) {
+          throw new NotFoundException('Author not found');
+        }
+
+        return { message: 'Author deleted successfully' };
+      });
+    } catch (error: unknown) {
+      console.error('Error deleting author:', error);
       throw error;
     }
   }
@@ -339,6 +447,233 @@ export class CommonRestService {
       });
     } catch (error: unknown) {
       console.error('Error deleting form type:', error);
+      throw error;
+    }
+  }
+
+  async getDepartments(query: GetDepartmentsQueryDto) {
+    try {
+      const departments = await this.db
+        .select({
+          id: departmentTable.id,
+          name: departmentTable.name,
+          created_at: departmentTable.created_at,
+          updated_at: departmentTable.updated_at,
+        })
+        .from(departmentTable)
+        .where(
+          and(
+            query.departmentid
+              ? eq(departmentTable.id, query.departmentid)
+              : undefined,
+            query.search
+              ? ilike(departmentTable.name, `%${query.search}%`)
+              : undefined,
+          ),
+        );
+
+      return departments;
+    } catch (error: unknown) {
+      console.error('Error fetching departments:', error);
+      throw error;
+    }
+  }
+
+  async createDepartment(createDepartmentDto: CreateDepartmentDto) {
+    try {
+      const exists = await this.db
+        .select({ id: departmentTable.id })
+        .from(departmentTable)
+        .where(eq(departmentTable.name, createDepartmentDto.name));
+
+      if (exists.length > 0) {
+        throw new ConflictException('Department name already exists');
+      }
+
+      const [department] = await this.db
+        .insert(departmentTable)
+        .values({ name: createDepartmentDto.name })
+        .returning();
+
+      if (!department) {
+        throw new Error('Department creation failed');
+      }
+
+      return department;
+    } catch (error: unknown) {
+      console.error('Error creating department:', error);
+      throw error;
+    }
+  }
+
+  async updateDepartment(id: string, updateDepartmentDto: UpdateDepartmentDto) {
+    try {
+      if (updateDepartmentDto.name === undefined) {
+        throw new BadRequestException('At least one field must be provided');
+      }
+
+      const [department] = await this.db
+        .update(departmentTable)
+        .set({
+          name: updateDepartmentDto.name,
+          updated_at: new Date(),
+        })
+        .where(eq(departmentTable.id, id))
+        .returning();
+
+      if (!department) {
+        throw new NotFoundException('Department not found');
+      }
+
+      return department;
+    } catch (error: unknown) {
+      console.error('Error updating department:', error);
+      throw error;
+    }
+  }
+
+  async deleteDepartment(id: string) {
+    try {
+      return await this.db.transaction(async (tx) => {
+        const assignedUsers = await tx
+          .select({ id: userDetailsTable.id })
+          .from(userDetailsTable)
+          .where(eq(userDetailsTable.department_id, id));
+
+        if (assignedUsers.length > 0) {
+          throw new ConflictException(
+            'Cannot delete a department assigned to users',
+          );
+        }
+
+        const [deletedDepartment] = await tx
+          .delete(departmentTable)
+          .where(eq(departmentTable.id, id))
+          .returning({ id: departmentTable.id });
+
+        if (!deletedDepartment) {
+          throw new NotFoundException('Department not found');
+        }
+
+        return { message: 'Department deleted successfully' };
+      });
+    } catch (error: unknown) {
+      console.error('Error deleting department:', error);
+      throw error;
+    }
+  }
+
+  async getDesignations(query: GetDesignationsQueryDto) {
+    try {
+      const designations = await this.db
+        .select({
+          id: designationTable.id,
+          name: designationTable.name,
+          created_at: designationTable.created_at,
+          updated_at: designationTable.updated_at,
+        })
+        .from(designationTable)
+        .where(
+          and(
+            query.designationid
+              ? eq(designationTable.id, query.designationid)
+              : undefined,
+            query.search
+              ? ilike(designationTable.name, `%${query.search}%`)
+              : undefined,
+          ),
+        );
+
+      return designations;
+    } catch (error: unknown) {
+      console.error('Error fetching designations:', error);
+      throw error;
+    }
+  }
+
+  async createDesignation(createDesignationDto: CreateDesignationDto) {
+    try {
+      const exists = await this.db
+        .select({ id: designationTable.id })
+        .from(designationTable)
+        .where(eq(designationTable.name, createDesignationDto.name));
+
+      if (exists.length > 0) {
+        throw new ConflictException('Designation name already exists');
+      }
+
+      const [designation] = await this.db
+        .insert(designationTable)
+        .values({ name: createDesignationDto.name })
+        .returning();
+
+      if (!designation) {
+        throw new Error('Designation creation failed');
+      }
+
+      return designation;
+    } catch (error: unknown) {
+      console.error('Error creating designation:', error);
+      throw error;
+    }
+  }
+
+  async updateDesignation(
+    id: string,
+    updateDesignationDto: UpdateDesignationDto,
+  ) {
+    try {
+      if (updateDesignationDto.name === undefined) {
+        throw new BadRequestException('At least one field must be provided');
+      }
+
+      const [designation] = await this.db
+        .update(designationTable)
+        .set({
+          name: updateDesignationDto.name,
+          updated_at: new Date(),
+        })
+        .where(eq(designationTable.id, id))
+        .returning();
+
+      if (!designation) {
+        throw new NotFoundException('Designation not found');
+      }
+
+      return designation;
+    } catch (error: unknown) {
+      console.error('Error updating designation:', error);
+      throw error;
+    }
+  }
+
+  async deleteDesignation(id: string) {
+    try {
+      return await this.db.transaction(async (tx) => {
+        const assignedUsers = await tx
+          .select({ id: userDetailsTable.id })
+          .from(userDetailsTable)
+          .where(eq(userDetailsTable.designation_id, id));
+
+        if (assignedUsers.length > 0) {
+          throw new ConflictException(
+            'Cannot delete a designation assigned to users',
+          );
+        }
+
+        const [deletedDesignation] = await tx
+          .delete(designationTable)
+          .where(eq(designationTable.id, id))
+          .returning({ id: designationTable.id });
+
+        if (!deletedDesignation) {
+          throw new NotFoundException('Designation not found');
+        }
+
+        return { message: 'Designation deleted successfully' };
+      });
+    } catch (error: unknown) {
+      console.error('Error deleting designation:', error);
       throw error;
     }
   }

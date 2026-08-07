@@ -50,7 +50,12 @@ export const userDetailsTable = pgTable(
     user_id: uuid('user_id')
       .references(() => userTable.id)
       .notNull(),
-    department: varchar('department', { length: 100 }).notNull(),
+    department_id: uuid('department_id')
+      .references(() => departmentTable.id)
+      .notNull(),
+    designation_id: uuid('designation_id').references(
+      () => designationTable.id,
+    ),
     created_at: timestamp('created_at', { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -61,6 +66,50 @@ export const userDetailsTable = pgTable(
   (table) => {
     return {
       userDetailsIdIndex: index('userDetailsIdIndex').on(table.id),
+      userDetailsDepartmentIdIndex: index('userDetailsDepartmentIdIndex').on(
+        table.department_id,
+      ),
+      userDetailsDesignationIdIndex: index('userDetailsDesignationIdIndex').on(
+        table.designation_id,
+      ),
+    };
+  },
+);
+
+export const departmentTable = pgTable(
+  'department',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', { length: 100 }).notNull().unique(),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      departmentIdIndex: index('departmentIdIndex').on(table.id),
+    };
+  },
+);
+
+export const designationTable = pgTable(
+  'designation',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', { length: 100 }).notNull().unique(),
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      designationIdIndex: index('designationIdIndex').on(table.id),
     };
   },
 );

@@ -6,13 +6,18 @@ import {
   ValidationPipe,
   Query,
   Patch,
+  UploadedFile,
+  UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { User } from 'src/common/decorators/user.decorator';
 import { JwtPayload } from 'src/types/auth';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Public } from 'src/common/decorators/public.decorator';
+import { imageMulterOptions } from 'src/common/multer/multer.options';
 
 @Controller('posts')
 export class PostsController {
@@ -24,6 +29,15 @@ export class PostsController {
     @User() user: JwtPayload,
   ) {
     return this.postsService.create(createPostDto, user);
+  }
+
+  @Post('upload-image')
+  @UseInterceptors(FileInterceptor('image', imageMulterOptions))
+  uploadImage(@UploadedFile() file?: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('No image file provided');
+    }
+    return this.postsService.uploadImage(file);
   }
 
   @Patch('update-post')

@@ -20,6 +20,21 @@ import {
 import { JwtPayload } from 'src/types/auth';
 import { and, asc, desc, eq, ilike, inArray, SQL, sql } from 'drizzle-orm';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { BunnyService } from 'src/common/bunny/bunny.service';
+
+const BLOG_IMAGE_FOLDER = 'blog/blog-image-individual';
+
+function extractImageUrls(html: string): string[] {
+  const urls: string[] = [];
+  const regex = /<img\b[^>]*\bsrc=["']([^"']+)["']/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(html)) !== null) {
+    urls.push(match[1]);
+  }
+
+  return urls;
+}
 
 export type Post = typeof postsTable.$inferSelect;
 export type NewPost = typeof postsTable.$inferInsert;
@@ -32,7 +47,15 @@ const toNullableString = (value: unknown): string | null => {
 
 @Injectable()
 export class PostsService {
-  constructor(@Inject(DRIZZLE) private readonly db: NodePgDatabase) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: NodePgDatabase,
+    private readonly bunnyService: BunnyService,
+  ) {}
+
+  async uploadImage(file: Express.Multer.File) {
+    const url = await this.bunnyService.uploadFile(file, BLOG_IMAGE_FOLDER);
+    return { url };
+  }
 
   async create(createPostDto: CreatePostDto, user: JwtPayload) {
     const exists = await this.db
@@ -129,7 +152,7 @@ export class PostsService {
     }
 
     const [existing] = await this.db
-      .select({ id: postsTable.id })
+      .select({ id: postsTable.id, content: postsTable.content })
       .from(postsTable)
       .where(eq(postsTable.id, id));
 
@@ -137,8 +160,17 @@ export class PostsService {
       throw new NotFoundException('Post not found');
     }
 
+    const removedImageUrls =
+      content !== undefined && existing.content
+        ? extractImageUrls(existing.content).filter(
+            (url) => !extractImageUrls(content).includes(url),
+          )
+        : [];
+
+    let result: { message: string; post_id: string };
+
     try {
-      return await this.db.transaction(async (tx) => {
+      result = await this.db.transaction(async (tx) => {
         const updateData: Partial<NewPost> = {
           updated_at: new Date(),
         };
@@ -229,6 +261,26 @@ export class PostsService {
       console.error('Update failed:', error);
       throw error;
     }
+
+    // Best-effort cleanup, run only after the content update itself has
+    // committed — a Bunny failure here should never fail the user's save.
+    if (removedImageUrls.length > 0) {
+      await Promise.allSettled(
+        removedImageUrls.map((url) =>
+          this.bunnyService
+            .deleteFileByUrl(url, BLOG_IMAGE_FOLDER)
+            .catch((error) => {
+              console.error(
+                'Failed to delete orphaned blog image from Bunny:',
+                url,
+                error,
+              );
+            }),
+        ),
+      );
+    }
+
+    return result;
   }
 
   async findAll(

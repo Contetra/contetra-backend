@@ -12,6 +12,7 @@ import { CommonRestModule } from './common-rest/common-rest.module';
 import { EmailModule } from './email/email.module';
 import { EbookModule } from './ebook/ebook.module';
 import { ServicesModule } from './services/services.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ServicesModule } from './services/services.module';
     EmailModule,
     EbookModule,
     ServicesModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [
