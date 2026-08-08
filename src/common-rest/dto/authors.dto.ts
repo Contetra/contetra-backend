@@ -1,11 +1,4 @@
-import {
-  IsEnum,
-  IsOptional,
-  IsString,
-  IsUUID,
-  MaxLength,
-} from 'class-validator';
-import { AuthorRole } from './create-common-rest.dto';
+import { IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
 
 export class GetAuthorsQueryDto {
   @IsOptional()
@@ -16,10 +9,4 @@ export class GetAuthorsQueryDto {
   @IsString()
   @MaxLength(255)
   search?: string;
-}
-
-export class UpdateAuthorDto {
-  @IsOptional()
-  @IsEnum(AuthorRole)
-  role?: AuthorRole;
 }

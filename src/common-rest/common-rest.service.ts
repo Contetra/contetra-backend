@@ -14,15 +14,15 @@ import {
 import { DRIZZLE } from 'src/common/drizzle/drizzle.module';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
-  authorTable,
   categoriesTable,
   departmentTable,
   designationTable,
   formsTable,
   formSubmissionsTable,
   formTypesTable,
-  postsAuthorsTable,
+  rolesTable,
   userDetailsTable,
+  userRolesTable,
   userTable,
 } from 'src/common/drizzle/schema';
 import { and, eq, ilike, inArray, or } from 'drizzle-orm';
@@ -49,7 +49,7 @@ import {
   GetDesignationsQueryDto,
   UpdateDesignationDto,
 } from './dto/designation.dto';
-import { GetAuthorsQueryDto, UpdateAuthorDto } from './dto/authors.dto';
+import { GetAuthorsQueryDto } from './dto/authors.dto';
 
 @Injectable()
 export class CommonRestService {
@@ -90,23 +90,41 @@ export class CommonRestService {
     }
   }
 
-  async createAuthor(createAuthors: CreateAuthors) {
-    const exists = await this.db
-      .select()
-      .from(authorTable)
-      .where(eq(authorTable.author_id, createAuthors.author_id));
+  private async getAuthorRoleId(): Promise<string> {
+    const [role] = await this.db
+      .select({ id: rolesTable.id })
+      .from(rolesTable)
+      .where(eq(rolesTable.name, 'author'));
 
-    if (exists.length > 0) {
-      throw new ConflictException('User is already an author');
+    if (!role) {
+      throw new Error('Author role is not configured');
     }
 
-    const newAuthor = {
-      role: createAuthors.role,
-      author_id: createAuthors.author_id,
-    };
+    return role.id;
+  }
 
+  async createAuthor(createAuthors: CreateAuthors) {
     try {
-      await this.db.insert(authorTable).values(newAuthor);
+      const authorRoleId = await this.getAuthorRoleId();
+
+      const exists = await this.db
+        .select({ user_id: userRolesTable.user_id })
+        .from(userRolesTable)
+        .where(
+          and(
+            eq(userRolesTable.user_id, createAuthors.author_id),
+            eq(userRolesTable.role_id, authorRoleId),
+          ),
+        );
+
+      if (exists.length > 0) {
+        throw new ConflictException('User is already an author');
+      }
+
+      await this.db.insert(userRolesTable).values({
+        user_id: createAuthors.author_id,
+        role_id: authorRoleId,
+      });
 
       return { message: 'Author created successfully' };
     } catch (error: unknown) {
@@ -118,22 +136,22 @@ export class CommonRestService {
   async getAuthorsList(query: GetAuthorsQueryDto) {
     try {
       const search = query.search?.trim();
+      const authorRoleId = await this.getAuthorRoleId();
 
       const authors = await this.db
         .select({
-          id: authorTable.id,
-          user_id: authorTable.author_id,
+          user_id: userRolesTable.user_id,
           name: userTable.name,
           email: userTable.email,
-          role: authorTable.role,
-          created_at: authorTable.created_at,
-          updated_at: authorTable.updated_at,
         })
-        .from(authorTable)
-        .innerJoin(userTable, eq(authorTable.author_id, userTable.id))
+        .from(userRolesTable)
+        .innerJoin(userTable, eq(userRolesTable.user_id, userTable.id))
         .where(
           and(
-            query.authorid ? eq(authorTable.id, query.authorid) : undefined,
+            eq(userRolesTable.role_id, authorRoleId),
+            query.authorid
+              ? eq(userRolesTable.user_id, query.authorid)
+              : undefined,
             search
               ? or(
                   ilike(userTable.name, `%${search}%`),
@@ -150,58 +168,25 @@ export class CommonRestService {
     }
   }
 
-  async updateAuthor(id: string, updateAuthorDto: UpdateAuthorDto) {
+  async deleteAuthor(id: string) {
     try {
-      if (updateAuthorDto.role === undefined) {
-        throw new BadRequestException('At least one field must be provided');
-      }
+      const authorRoleId = await this.getAuthorRoleId();
 
-      const [author] = await this.db
-        .update(authorTable)
-        .set({
-          role: updateAuthorDto.role,
-          updated_at: new Date(),
-        })
-        .where(eq(authorTable.id, id))
-        .returning();
+      const [deletedAuthor] = await this.db
+        .delete(userRolesTable)
+        .where(
+          and(
+            eq(userRolesTable.user_id, id),
+            eq(userRolesTable.role_id, authorRoleId),
+          ),
+        )
+        .returning({ user_id: userRolesTable.user_id });
 
-      if (!author) {
+      if (!deletedAuthor) {
         throw new NotFoundException('Author not found');
       }
 
-      return author;
-    } catch (error: unknown) {
-      console.error('Error updating author:', error);
-      throw error;
-    }
-  }
-
-  async deleteAuthor(id: string) {
-    try {
-      return await this.db.transaction(async (tx) => {
-        const assignedPosts = await tx
-          .select({ post_id: postsAuthorsTable.post_id })
-          .from(postsAuthorsTable)
-          .where(eq(postsAuthorsTable.author_id, id))
-          .limit(1);
-
-        if (assignedPosts.length > 0) {
-          throw new ConflictException(
-            'Cannot delete an author who has published posts',
-          );
-        }
-
-        const [deletedAuthor] = await tx
-          .delete(authorTable)
-          .where(eq(authorTable.id, id))
-          .returning({ id: authorTable.id });
-
-        if (!deletedAuthor) {
-          throw new NotFoundException('Author not found');
-        }
-
-        return { message: 'Author deleted successfully' };
-      });
+      return { message: 'Author deleted successfully' };
     } catch (error: unknown) {
       console.error('Error deleting author:', error);
       throw error;
@@ -219,13 +204,16 @@ export class CommonRestService {
   }
 
   async getAllAuthors() {
+    const authorRoleId = await this.getAuthorRoleId();
+
     const authors = await this.db
       .select({
-        author_id: authorTable.id,
+        author_id: userRolesTable.user_id,
         name: userTable.name,
       })
-      .from(authorTable)
-      .innerJoin(userTable, eq(authorTable.author_id, userTable.id));
+      .from(userRolesTable)
+      .innerJoin(userTable, eq(userRolesTable.user_id, userTable.id))
+      .where(eq(userRolesTable.role_id, authorRoleId));
     return authors;
   }
 

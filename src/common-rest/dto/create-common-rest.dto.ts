@@ -1,6 +1,5 @@
 import {
   IsEmail,
-  IsEnum,
   IsNotEmpty,
   IsString,
   IsUUID,
@@ -22,18 +21,10 @@ export class CreateCategories {
   description: string;
 }
 
-export enum AuthorRole {
-  User = 'User',
-  Author = 'Author',
-}
-
 export class CreateAuthors {
   @IsUUID()
   @IsNotEmpty()
   author_id: string;
-
-  @IsEnum(AuthorRole)
-  role: AuthorRole;
 }
 export class CreateContactUs {
   @IsString()
