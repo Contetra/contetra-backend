@@ -37,7 +37,7 @@ import {
   GetDesignationsQueryDto,
   UpdateDesignationDto,
 } from './dto/designation.dto';
-import { GetAuthorsQueryDto, UpdateAuthorDto } from './dto/authors.dto';
+import { GetAuthorsQueryDto } from './dto/authors.dto';
 
 @Controller('common-rest')
 export class CommonRestController {
@@ -68,14 +68,6 @@ export class CommonRestController {
   @Get('get-authors')
   async getAuthorsList(@Query() query: GetAuthorsQueryDto) {
     return this.commonRestService.getAuthorsList(query);
-  }
-
-  @Patch('update-authors/:id')
-  async updateAuthor(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateAuthorDto: UpdateAuthorDto,
-  ) {
-    return this.commonRestService.updateAuthor(id, updateAuthorDto);
   }
 
   @Delete('delete-authors/:id')

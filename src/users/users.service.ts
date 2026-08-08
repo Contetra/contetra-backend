@@ -10,12 +10,12 @@ import { DRIZZLE } from 'src/common/drizzle/drizzle.module';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   accessLogsTable,
-  authorTable,
   departmentTable,
   designationTable,
   eBooksTable,
   pageTable,
   policyBindingsTable,
+  postsAuthorsTable,
   postsTable,
   userAttributesTable,
   userDetailsTable,
@@ -272,14 +272,14 @@ export class UsersService {
         );
       }
 
-      const [isAuthor] = await tx
-        .select({ id: authorTable.id })
-        .from(authorTable)
-        .where(eq(authorTable.author_id, id))
+      const [hasAuthoredPosts] = await tx
+        .select({ post_id: postsAuthorsTable.post_id })
+        .from(postsAuthorsTable)
+        .where(eq(postsAuthorsTable.author_id, id))
         .limit(1);
-      if (isAuthor) {
+      if (hasAuthoredPosts) {
         throw new ConflictException(
-          'Cannot delete a user registered as an author',
+          'Cannot delete a user who is credited as an author on a post',
         );
       }
 

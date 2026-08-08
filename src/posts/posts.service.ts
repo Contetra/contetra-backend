@@ -9,7 +9,6 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { DRIZZLE } from 'src/common/drizzle/drizzle.module';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
-  authorTable,
   categoriesTable,
   postMetaDataTable,
   postsAuthorsTable,
@@ -334,8 +333,7 @@ export class PostsService {
       })
       .from(postsTable)
       .leftJoin(postsAuthorsTable, eq(postsTable.id, postsAuthorsTable.post_id))
-      .leftJoin(authorTable, eq(postsAuthorsTable.author_id, authorTable.id))
-      .leftJoin(userTable, eq(authorTable.author_id, userTable.id))
+      .leftJoin(userTable, eq(postsAuthorsTable.author_id, userTable.id))
       .leftJoin(
         postsCategoriesTable,
         eq(postsTable.id, postsCategoriesTable.post_id),
@@ -433,8 +431,7 @@ export class PostsService {
       })
       .from(postsTable)
       .leftJoin(postsAuthorsTable, eq(postsTable.id, postsAuthorsTable.post_id))
-      .leftJoin(authorTable, eq(postsAuthorsTable.author_id, authorTable.id))
-      .leftJoin(userTable, eq(authorTable.author_id, userTable.id))
+      .leftJoin(userTable, eq(postsAuthorsTable.author_id, userTable.id))
       .leftJoin(
         postsCategoriesTable,
         eq(postsTable.id, postsCategoriesTable.post_id),
@@ -492,7 +489,7 @@ export class PostsService {
         og_description: postMetaDataTable.ogDescription,
 
         author_ids: sql<string[]>`
-        array_remove(array_agg(DISTINCT ${authorTable.id}), NULL)
+        array_remove(array_agg(DISTINCT ${postsAuthorsTable.author_id}), NULL)
       `.as('author_ids'),
 
         authors: sql<string[]>`
@@ -509,8 +506,7 @@ export class PostsService {
       })
       .from(postsTable)
       .leftJoin(postsAuthorsTable, eq(postsTable.id, postsAuthorsTable.post_id))
-      .leftJoin(authorTable, eq(postsAuthorsTable.author_id, authorTable.id))
-      .leftJoin(userTable, eq(authorTable.author_id, userTable.id))
+      .leftJoin(userTable, eq(postsAuthorsTable.author_id, userTable.id))
       .leftJoin(
         postsCategoriesTable,
         eq(postsTable.id, postsCategoriesTable.post_id),
@@ -579,8 +575,7 @@ export class PostsService {
       .from(postsTable)
 
       .leftJoin(postsAuthorsTable, eq(postsTable.id, postsAuthorsTable.post_id))
-      .leftJoin(authorTable, eq(postsAuthorsTable.author_id, authorTable.id))
-      .leftJoin(userTable, eq(authorTable.author_id, userTable.id))
+      .leftJoin(userTable, eq(postsAuthorsTable.author_id, userTable.id))
 
       .leftJoin(
         postsCategoriesTable,

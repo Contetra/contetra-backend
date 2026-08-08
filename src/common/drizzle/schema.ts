@@ -339,7 +339,7 @@ export const postsAuthorsTable = pgTable(
       .references(() => postsTable.id)
       .notNull(),
     author_id: uuid('author_id')
-      .references(() => authorTable.id)
+      .references(() => userTable.id)
       .notNull(),
     created_at: timestamp('created_at', { withTimezone: true })
       .defaultNow()
