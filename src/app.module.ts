@@ -13,6 +13,7 @@ import { EmailModule } from './email/email.module';
 import { EbookModule } from './ebook/ebook.module';
 import { ServicesModule } from './services/services.module';
 import { UsersModule } from './users/users.module';
+import { RbacModule } from './rbac/rbac.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { UsersModule } from './users/users.module';
     EbookModule,
     ServicesModule,
     UsersModule,
+    RbacModule,
   ],
   controllers: [AppController],
   providers: [
