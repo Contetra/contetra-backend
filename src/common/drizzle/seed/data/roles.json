@@ -1,0 +1,3 @@
+[{"id":"66a48f6c-1e6a-4911-872d-36b0058d1b9a","name":"admin","description":"Have all access"}, 
+ {"id":"0ac51ae7-e75f-4f12-a71c-d363e927153e","name":"author","description":"Can author and manage blog content."}, 
+ {"id":"989d00f6-3381-47ce-b705-5d4a475d899e","name":"user","description":"Basic access to website."}]
