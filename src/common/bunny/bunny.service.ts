@@ -46,6 +46,8 @@ export class BunnyService {
     file: Express.Multer.File,
 
     folderPath: string,
+
+    remoteFileName?: string,
   ): Promise<string> {
     const storageZone = this.config.get<string>('BUNNY_STORAGE_ZONE');
 
@@ -61,7 +63,7 @@ export class BunnyService {
 
     const cleanFolder = folderPath.replace(/^\/+/, '').replace(/\/+$/, '');
 
-    const remoteFilePath = `${cleanFolder}/${file.filename}`;
+    const remoteFilePath = `${cleanFolder}/${remoteFileName || file.filename}`;
 
     const uploadUrl = `https://${region}.bunnycdn.com/${storageZone}/${remoteFilePath}`;
 

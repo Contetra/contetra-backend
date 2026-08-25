@@ -5,7 +5,10 @@ import {
   IsString,
   IsStrongPassword,
   IsUUID,
+  MaxLength,
+  Matches,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -37,4 +40,12 @@ export class CreateUserDto {
   @IsOptional()
   @IsUUID()
   designation_id?: string;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null && value !== '')
+  @Matches(/^\//, {
+    message: 'Profile picture path must start with /',
+  })
+  @MaxLength(255)
+  profile_picture_url?: string | null;
 }

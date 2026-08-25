@@ -8,6 +8,7 @@ import {
   text,
   jsonb,
   boolean,
+  integer,
 } from 'drizzle-orm/pg-core';
 
 export const userTable = pgTable(
@@ -56,6 +57,7 @@ export const userDetailsTable = pgTable(
     designation_id: uuid('designation_id').references(
       () => designationTable.id,
     ),
+    order: integer('order').notNull().default(0),
     created_at: timestamp('created_at', { withTimezone: true })
       .defaultNow()
       .notNull(),

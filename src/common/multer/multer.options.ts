@@ -89,3 +89,14 @@ export const imageMulterOptions: MulterModuleOptions = {
     cb(null, true);
   },
 };
+
+export const PROFILE_PHOTO_MAX_BYTES = 1 * 1024 * 1024;
+
+export const profilePhotoMulterOptions: MulterModuleOptions = {
+  ...imageMulterOptions,
+
+  limits: {
+    fileSize: PROFILE_PHOTO_MAX_BYTES,
+    files: 1,
+  },
+};
