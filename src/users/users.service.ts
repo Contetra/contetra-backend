@@ -22,17 +22,7 @@ import {
   userRolesTable,
   userTable,
 } from 'src/common/drizzle/schema';
-import {
-  and,
-  desc,
-  eq,
-  ilike,
-  inArray,
-  isNotNull,
-  ne,
-  or,
-  sql,
-} from 'drizzle-orm';
+import { and, desc, eq, ilike, inArray, ne, or, sql } from 'drizzle-orm';
 import { GetUsersQueryDto } from './dto/get-users-query.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -50,7 +40,6 @@ const PHOTO_EXTENSION_BY_MIME: Record<string, string> = {
 };
 
 type NewUser = typeof userTable.$inferInsert;
-type NewUserDetails = typeof userDetailsTable.$inferInsert;
 
 @Injectable()
 export class UsersService {
@@ -72,6 +61,7 @@ export class UsersService {
         department_id: departmentTable.id,
         designation: designationTable.name,
         designation_id: designationTable.id,
+        show_on_website: userDetailsTable.show_on_website,
         order: userDetailsTable.order,
         profile_picture_url: userTable.profile_picture_url,
         two_fa_status: userTable.two_fa_status,
@@ -119,11 +109,11 @@ export class UsersService {
         departmentTable,
         eq(departmentTable.id, userDetailsTable.department_id),
       )
-      .innerJoin(
+      .leftJoin(
         designationTable,
         eq(designationTable.id, userDetailsTable.designation_id),
       )
-      .where(isNotNull(userDetailsTable.designation_id))
+      .where(eq(userDetailsTable.show_on_website, true))
       .orderBy(userDetailsTable.order, userTable.name);
   }
 
@@ -139,7 +129,10 @@ export class UsersService {
     const ext =
       PHOTO_EXTENSION_BY_MIME[file.mimetype] ??
       (originalExt || '.jpg');
-    const filename = `${slug}${ext}`;
+    // Suffixed with a timestamp so each upload gets a distinct URL — reusing
+    // the same filename let CDN/browser caches keep serving the old photo
+    // after a replacement upload, since nothing about the URL had changed.
+    const filename = `${slug}-${Date.now()}${ext}`;
 
     await this.bunnyService.uploadFile(file, TEAM_PHOTO_FOLDER, filename);
     return { url: `/${TEAM_PHOTO_FOLDER}/${filename}` };
@@ -151,11 +144,14 @@ export class UsersService {
   }
 
   async createUser(dto: CreateUserDto) {
-    const exists = await this.db
-      .select({ id: userTable.id })
-      .from(userTable)
-      .where(eq(userTable.email, dto.email));
-    if (exists.length > 0) throw new ConflictException('Email already exists');
+    if (dto.email) {
+      const exists = await this.db
+        .select({ id: userTable.id })
+        .from(userTable)
+        .where(eq(userTable.email, dto.email));
+      if (exists.length > 0)
+        throw new ConflictException('Email already exists');
+    }
 
     const existsUserName = await this.db
       .select({ id: userTable.id })
@@ -164,8 +160,9 @@ export class UsersService {
     if (existsUserName.length > 0)
       throw new ConflictException('Username already exists');
 
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(dto.password, salt);
+    const hashedPassword = dto.password
+      ? await bcrypt.hash(dto.password, await bcrypt.genSalt())
+      : undefined;
 
     return this.db.transaction(async (tx) => {
       const [createdUser] = await tx
@@ -173,8 +170,8 @@ export class UsersService {
         .values({
           name: dto.name,
           user_name: dto.user_name,
-          email: dto.email,
-          password: hashedPassword,
+          ...(dto.email ? { email: dto.email } : {}),
+          ...(hashedPassword ? { password: hashedPassword } : {}),
           ...(dto.profile_picture_url
             ? { profile_picture_url: dto.profile_picture_url }
             : {}),
@@ -185,14 +182,13 @@ export class UsersService {
         throw new Error('User creation failed');
       }
 
-      if (dto.designation_id) {
-        await tx.insert(userDetailsTable).values({
-          user_id: createdUser.id,
-          designation_id: dto.designation_id,
-          order: await this.getNextOrder(tx),
-          ...(dto.department_id ? { department_id: dto.department_id } : {}),
-        });
-      }
+      await tx.insert(userDetailsTable).values({
+        user_id: createdUser.id,
+        order: await this.getNextOrder(tx),
+        show_on_website: dto.show_on_website ?? true,
+        ...(dto.department_id ? { department_id: dto.department_id } : {}),
+        ...(dto.designation_id ? { designation_id: dto.designation_id } : {}),
+      });
 
       return {
         message: 'User created successfully',
@@ -218,6 +214,7 @@ export class UsersService {
       dto.password,
       dto.department_id,
       dto.designation_id,
+      dto.show_on_website,
       dto.profile_picture_url,
     ].some((field) => field !== undefined);
     if (!hasUpdates) {
@@ -226,7 +223,7 @@ export class UsersService {
       );
     }
 
-    if (dto.email !== undefined) {
+    if (dto.email) {
       const [conflict] = await this.db
         .select({ id: userTable.id })
         .from(userTable)
@@ -248,7 +245,7 @@ export class UsersService {
       const updateData: Partial<NewUser> = { updated_at: new Date() };
       if (dto.name !== undefined) updateData.name = dto.name;
       if (dto.user_name !== undefined) updateData.user_name = dto.user_name;
-      if (dto.email !== undefined) updateData.email = dto.email;
+      if (dto.email !== undefined) updateData.email = dto.email || null;
       if (dto.profile_picture_url !== undefined) {
         updateData.profile_picture_url = dto.profile_picture_url || null;
       }
@@ -259,53 +256,55 @@ export class UsersService {
 
       await tx.update(userTable).set(updateData).where(eq(userTable.id, id));
 
-      if (dto.department_id !== undefined || dto.designation_id !== undefined) {
-        if (dto.designation_id === null) {
+      if (
+        dto.department_id !== undefined ||
+        dto.designation_id !== undefined ||
+        dto.show_on_website !== undefined
+      ) {
+        const [existingDetails] = await tx
+          .select({
+            id: userDetailsTable.id,
+            show_on_website: userDetailsTable.show_on_website,
+          })
+          .from(userDetailsTable)
+          .where(eq(userDetailsTable.user_id, id));
+
+        // Re-enabling visibility sends the member to the end of the order
+        // instead of resurfacing them at whatever stale position they held
+        // before being hidden.
+        const isBecomingVisible =
+          dto.show_on_website === true &&
+          (!existingDetails || existingDetails.show_on_website === false);
+
+        if (existingDetails) {
           await tx
-            .delete(userDetailsTable)
-            .where(eq(userDetailsTable.user_id, id));
-        } else {
-          const [existingDetails] = await tx
-            .select({
-              id: userDetailsTable.id,
-              designation_id: userDetailsTable.designation_id,
-            })
-            .from(userDetailsTable)
-            .where(eq(userDetailsTable.user_id, id));
-
-          const nextDesignationId =
-            dto.designation_id ?? existingDetails?.designation_id;
-          if (!nextDesignationId) {
-            throw new BadRequestException(
-              'Designation must be set before assigning a department',
-            );
-          }
-
-          const detailsUpdate: Partial<NewUserDetails> = {
-            updated_at: new Date(),
-          };
-          if (dto.department_id !== undefined) {
-            detailsUpdate.department_id = dto.department_id;
-          }
-          if (dto.designation_id !== undefined) {
-            detailsUpdate.designation_id = dto.designation_id;
-          }
-
-          if (existingDetails) {
-            await tx
-              .update(userDetailsTable)
-              .set(detailsUpdate)
-              .where(eq(userDetailsTable.user_id, id));
-          } else {
-            await tx.insert(userDetailsTable).values({
-              user_id: id,
-              designation_id: nextDesignationId,
-              order: await this.getNextOrder(tx),
+            .update(userDetailsTable)
+            .set({
               ...(dto.department_id !== undefined
                 ? { department_id: dto.department_id }
                 : {}),
-            });
-          }
+              ...(dto.designation_id !== undefined
+                ? { designation_id: dto.designation_id }
+                : {}),
+              ...(dto.show_on_website !== undefined
+                ? { show_on_website: dto.show_on_website }
+                : {}),
+              ...(isBecomingVisible
+                ? { order: await this.getNextOrder(tx) }
+                : {}),
+              updated_at: new Date(),
+            })
+            .where(eq(userDetailsTable.user_id, id));
+        } else {
+          await tx.insert(userDetailsTable).values({
+            user_id: id,
+            order: await this.getNextOrder(tx),
+            show_on_website: dto.show_on_website ?? true,
+            ...(dto.department_id ? { department_id: dto.department_id } : {}),
+            ...(dto.designation_id
+              ? { designation_id: dto.designation_id }
+              : {}),
+          });
         }
       }
 
@@ -446,24 +445,23 @@ export class UsersService {
       const existingDetails = await tx
         .select({
           user_id: userDetailsTable.user_id,
-          designation_id: userDetailsTable.designation_id,
+          show_on_website: userDetailsTable.show_on_website,
         })
         .from(userDetailsTable);
 
-      const detailsByUserId = new Set(
+      const visibleUserIds = new Set(
         existingDetails
-          .filter((row) => row.designation_id)
+          .filter((row) => row.show_on_website)
           .map((row) => row.user_id),
       );
-      const missingDetails = uniqueIds.filter((id) => !detailsByUserId.has(id));
-      if (missingDetails.length > 0) {
+      const notVisible = uniqueIds.filter((id) => !visibleUserIds.has(id));
+      if (notVisible.length > 0) {
         throw new BadRequestException(
-          'Assign a designation before arranging a user',
+          'Enable "Show on website" for these members before arranging them',
         );
       }
 
       const omitted = existingDetails
-        .filter((row) => row.designation_id)
         .map((row) => row.user_id)
         .filter((id) => !uniqueIds.includes(id));
       const orderedIds = [...uniqueIds, ...omitted];

@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -22,24 +23,25 @@ export class CreateUserDto {
   @MinLength(1)
   user_name: string;
 
+  @IsOptional()
   @IsEmail()
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(1)
-  email: string;
+  email?: string;
 
+  @IsOptional()
   @IsStrongPassword()
-  @IsNotEmpty()
-  @MinLength(8)
-  password: string;
+  password?: string;
 
   @IsOptional()
   @IsUUID()
   department_id?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsUUID()
-  designation_id: string;
+  designation_id?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  show_on_website?: boolean;
 
   @IsOptional()
   @ValidateIf((_, value) => value !== null && value !== '')

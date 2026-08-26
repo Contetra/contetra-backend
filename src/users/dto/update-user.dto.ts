@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -25,8 +26,9 @@ export class UpdateUserDto {
   user_name?: string;
 
   @IsOptional()
+  @ValidateIf((_, value) => value !== null && value !== '')
   @IsEmail()
-  email?: string;
+  email?: string | null;
 
   @IsOptional()
   @IsStrongPassword()
@@ -40,6 +42,10 @@ export class UpdateUserDto {
   @IsOptional()
   @IsUUID()
   designation_id?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  show_on_website?: boolean;
 
   @IsOptional()
   @ValidateIf((_, value) => value !== null && value !== '')

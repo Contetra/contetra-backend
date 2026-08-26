@@ -17,14 +17,14 @@ export const userTable = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     name: varchar('name', { length: 255 }).unique().notNull(),
     user_name: varchar('user_name', { length: 255 }).notNull().unique(),
-    password: varchar('password', { length: 255 }).notNull(),
+    password: varchar('password', { length: 255 }),
     two_fa_status: varchar('2fa_status', {
       enum: ['enabled', 'disabled', 'not_allowed'],
       length: 50,
     })
       .notNull()
       .default('disabled'),
-    email: varchar('email', { length: 255 }).notNull().unique(),
+    email: varchar('email', { length: 255 }).unique(),
     profile_picture_url: varchar('profile_picture_url', { length: 255 }),
     last_login: timestamp('last_login', { withTimezone: true })
       .defaultNow()
@@ -54,9 +54,10 @@ export const userDetailsTable = pgTable(
     department_id: uuid('department_id').references(
       () => departmentTable.id,
     ),
-    designation_id: uuid('designation_id')
-      .references(() => designationTable.id)
-      .notNull(),
+    designation_id: uuid('designation_id').references(
+      () => designationTable.id,
+    ),
+    show_on_website: boolean('show_on_website').notNull().default(true),
     order: integer('order').notNull().default(0),
     created_at: timestamp('created_at', { withTimezone: true })
       .defaultNow()

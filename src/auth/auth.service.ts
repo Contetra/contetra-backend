@@ -53,7 +53,7 @@ export class AuthService {
     const created = inserted[0];
     const payload: JwtPayload = {
       userId: created.id,
-      email: created.email,
+      email: dto.email,
     };
     return { access_token: this.jwtService.sign(payload) };
   }
@@ -72,12 +72,17 @@ export class AuthService {
       .limit(1);
 
     const user = rows[0];
-    if (!user) throw new ConflictException('Invalid credentials');
+    if (!user || !user.password) {
+      throw new ConflictException('Invalid credentials');
+    }
 
     const ok = await bcrypt.compare(dto.password, user.password);
     if (!ok) throw new ConflictException('Invalid credentials');
 
-    const payload: JwtPayload = { userId: user.id, email: user.email };
+    const payload: JwtPayload = {
+      userId: user.id,
+      email: user.email ?? dto.email,
+    };
     return {
       access_token: this.jwtService.sign(payload),
       message: 'Login Successful',
