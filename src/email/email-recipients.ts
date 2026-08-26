@@ -28,4 +28,9 @@ export const EMAIL_RECIPIENTS = {
     'palak.kedia@contetra.com',
     'kashish.rajpal@contetra.com',
   ],
+  READINESS: [
+    'chitra.parameswaran@contetra.com',
+    'pankaj.sakpal@contetra.com',
+    'shubham.soni@contetra.com'
+  ],
 };

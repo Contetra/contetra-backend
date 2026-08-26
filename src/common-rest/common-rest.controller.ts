@@ -16,6 +16,7 @@ import {
   CreateContactCtac,
   CreateContactUs,
 } from './dto/create-common-rest.dto';
+import { CreateErpReadinessChecklistDto } from './dto/create-erp-readiness-checklist.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import {
   CreateFormDto,
@@ -179,5 +180,11 @@ export class CommonRestController {
   @Public()
   async contactCtac(@Body() createContactCtac: CreateContactCtac) {
     return this.commonRestService.contactCtac(createContactCtac);
+  }
+
+  @Post('erp-readiness-checklist')
+  @Public()
+  erpReadinessChecklist(@Body() dto: CreateErpReadinessChecklistDto) {
+    return this.commonRestService.erpReadinessChecklist(dto);
   }
 }

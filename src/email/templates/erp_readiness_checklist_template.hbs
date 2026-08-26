@@ -1,0 +1,13 @@
+<div style="font-family: Arial, sans-serif;">
+  <h2>ERP Readiness Checklist Submission 👋</h2>
+  <p>Company Name: {{company_name}}</p>
+  <p>Turnover: {{turnover}}</p>
+  <p>Score: {{score}} / {{total}}</p>
+  <p>Checked items:</p>
+  <ul>
+    {{#each checked_items}}
+    <li>{{this}}</li>
+    {{/each}}
+  </ul>
+  <p style="margin-top:20px;">Thanks,<br/>Team</p>
+</div>

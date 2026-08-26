@@ -11,6 +11,7 @@ import {
   CreateContactCtac,
   CreateContactUs,
 } from './dto/create-common-rest.dto';
+import { CreateErpReadinessChecklistDto } from './dto/create-erp-readiness-checklist.dto';
 import { DRIZZLE } from 'src/common/drizzle/drizzle.module';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
@@ -786,5 +787,32 @@ export class CommonRestService {
       console.error('Insert failed:', error);
       throw error;
     }
+  }
+
+  erpReadinessChecklist(dto: CreateErpReadinessChecklistDto) {
+    const score = dto.checked_items.length;
+
+    const html = this.templateService.render(
+      'erp_readiness_checklist_template',
+      {
+        company_name: dto.company_name,
+        turnover: dto.turnover,
+        score,
+        total: 16,
+        checked_items: dto.checked_items,
+      },
+    );
+
+    void this.emailService
+      .sendEmail({
+        to: EMAIL_RECIPIENTS.READINESS,
+        subject: `ERP Readiness Checklist — ${dto.company_name} (Score ${score}/16)`,
+        html,
+      })
+      .catch((err) => {
+        console.error('ACTUAL EMAIL ERROR:', err);
+      });
+
+    return { message: 'Submitted successfully', score };
   }
 }
