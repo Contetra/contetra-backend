@@ -37,9 +37,9 @@ export class CreateUserDto {
   @IsUUID()
   department_id?: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsUUID()
-  designation_id?: string;
+  designation_id: string;
 
   @IsOptional()
   @ValidateIf((_, value) => value !== null && value !== '')

@@ -47,6 +47,9 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
 
         console.error('ERROR:', exception.message);
         console.error('STACK:', exception.stack);
+        if (exception.cause) {
+          console.error('CAUSE:', exception.cause);
+        }
       } else {
         myResponseObj.response = 'Internal Server Error';
 

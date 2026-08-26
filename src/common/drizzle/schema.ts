@@ -51,12 +51,12 @@ export const userDetailsTable = pgTable(
     user_id: uuid('user_id')
       .references(() => userTable.id)
       .notNull(),
-    department_id: uuid('department_id')
-      .references(() => departmentTable.id)
-      .notNull(),
-    designation_id: uuid('designation_id').references(
-      () => designationTable.id,
+    department_id: uuid('department_id').references(
+      () => departmentTable.id,
     ),
+    designation_id: uuid('designation_id')
+      .references(() => designationTable.id)
+      .notNull(),
     order: integer('order').notNull().default(0),
     created_at: timestamp('created_at', { withTimezone: true })
       .defaultNow()

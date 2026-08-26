@@ -115,7 +115,7 @@ export class UsersService {
       })
       .from(userTable)
       .innerJoin(userDetailsTable, eq(userDetailsTable.user_id, userTable.id))
-      .innerJoin(
+      .leftJoin(
         departmentTable,
         eq(departmentTable.id, userDetailsTable.department_id),
       )
@@ -123,12 +123,7 @@ export class UsersService {
         designationTable,
         eq(designationTable.id, userDetailsTable.designation_id),
       )
-      .where(
-        and(
-          isNotNull(userDetailsTable.department_id),
-          isNotNull(userDetailsTable.designation_id),
-        ),
-      )
+      .where(isNotNull(userDetailsTable.designation_id))
       .orderBy(userDetailsTable.order, userTable.name);
   }
 
@@ -190,12 +185,12 @@ export class UsersService {
         throw new Error('User creation failed');
       }
 
-      if (dto.department_id) {
+      if (dto.designation_id) {
         await tx.insert(userDetailsTable).values({
           user_id: createdUser.id,
-          department_id: dto.department_id,
+          designation_id: dto.designation_id,
           order: await this.getNextOrder(tx),
-          ...(dto.designation_id ? { designation_id: dto.designation_id } : {}),
+          ...(dto.department_id ? { department_id: dto.department_id } : {}),
         });
       }
 
@@ -265,7 +260,7 @@ export class UsersService {
       await tx.update(userTable).set(updateData).where(eq(userTable.id, id));
 
       if (dto.department_id !== undefined || dto.designation_id !== undefined) {
-        if (dto.department_id === null) {
+        if (dto.designation_id === null) {
           await tx
             .delete(userDetailsTable)
             .where(eq(userDetailsTable.user_id, id));
@@ -273,16 +268,16 @@ export class UsersService {
           const [existingDetails] = await tx
             .select({
               id: userDetailsTable.id,
-              department_id: userDetailsTable.department_id,
+              designation_id: userDetailsTable.designation_id,
             })
             .from(userDetailsTable)
             .where(eq(userDetailsTable.user_id, id));
 
-          const nextDepartmentId =
-            dto.department_id ?? existingDetails?.department_id;
-          if (!nextDepartmentId) {
+          const nextDesignationId =
+            dto.designation_id ?? existingDetails?.designation_id;
+          if (!nextDesignationId) {
             throw new BadRequestException(
-              'Department must be set before assigning a designation',
+              'Designation must be set before assigning a department',
             );
           }
 
@@ -304,10 +299,10 @@ export class UsersService {
           } else {
             await tx.insert(userDetailsTable).values({
               user_id: id,
-              department_id: nextDepartmentId,
+              designation_id: nextDesignationId,
               order: await this.getNextOrder(tx),
-              ...(dto.designation_id !== undefined
-                ? { designation_id: dto.designation_id }
+              ...(dto.department_id !== undefined
+                ? { department_id: dto.department_id }
                 : {}),
             });
           }
@@ -463,7 +458,7 @@ export class UsersService {
       const missingDetails = uniqueIds.filter((id) => !detailsByUserId.has(id));
       if (missingDetails.length > 0) {
         throw new BadRequestException(
-          'Assign both a department and designation before arranging a user',
+          'Assign a designation before arranging a user',
         );
       }
 

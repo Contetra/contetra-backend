@@ -59,18 +59,7 @@ export class AuthService {
   }
 
   async login(dto: Pick<CreateAuthDto, 'email' | 'password'>) {
-    const html = this.templateService.render('welcome', {
-      name: 'Shubham',
-      loginUrl: 'https://example.com/login',
-    });
-
-    void this.emailService
-      .sendEmail({
-        to: EMAIL_RECIPIENTS.COMMON_CONTETRA,
-        subject: 'Testing Email Contetra',
-        html,
-      })
-      .catch((err) => console.error('Email failed', err));
+  
 
     const rows = await this.db
       .select({
