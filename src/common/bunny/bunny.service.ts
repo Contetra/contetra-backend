@@ -10,7 +10,7 @@ export class BunnyService {
 
   generateSignedUrl(filePath: string, expiry = 600): string {
     const tokenKey = this.config.get<string>('BUNNY_TOKEN_KEY');
-    const baseUrl = this.config.get<string>('BUNNY_CDN_URL');
+    const baseUrl = this.config.get<string>('BUNNY_SECURE_CDN_URL');
 
     if (!tokenKey || !baseUrl) {
       throw new Error('Bunny CDN config missing');
