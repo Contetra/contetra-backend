@@ -795,10 +795,13 @@ export class CommonRestService {
     const html = this.templateService.render(
       'erp_readiness_checklist_template',
       {
+        name: dto.name,
+        phone_number: dto.phone_number,
+        email: dto.email,
         company_name: dto.company_name,
         turnover: dto.turnover,
         score,
-        total: 16,
+        total: dto.total_items,
         checked_items: dto.checked_items,
       },
     );
@@ -806,7 +809,7 @@ export class CommonRestService {
     void this.emailService
       .sendEmail({
         to: EMAIL_RECIPIENTS.READINESS,
-        subject: `ERP Readiness Checklist — ${dto.company_name} (Score ${score}/16)`,
+        subject: `ERP Readiness Checklist — ${dto.company_name} (Score ${score}/${dto.total_items})`,
         html,
       })
       .catch((err) => {
