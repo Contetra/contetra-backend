@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import {
   CreateAuthors,
-  CreateCategories,
   CreateContactCtac,
   CreateContactUs,
 } from './dto/create-common-rest.dto';
@@ -21,12 +20,13 @@ import {
   formsTable,
   formSubmissionsTable,
   formTypesTable,
+  postsCategoriesTable,
   rolesTable,
   userDetailsTable,
   userRolesTable,
   userTable,
 } from 'src/common/drizzle/schema';
-import { and, eq, ilike, inArray, or } from 'drizzle-orm';
+import { and, eq, ilike, inArray, ne, or } from 'drizzle-orm';
 import { EMAIL_RECIPIENTS } from 'src/email/email-recipients';
 import { EmailService } from 'src/email/email.service';
 import { EmailTemplateService } from 'src/email/email-template.service';
@@ -46,6 +46,11 @@ import {
   UpdateDepartmentDto,
 } from './dto/department.dto';
 import {
+  CreateCategoryDto,
+  GetCategoriesQueryDto,
+  UpdateCategoryDto,
+} from './dto/category.dto';
+import {
   CreateDesignationDto,
   GetDesignationsQueryDto,
   UpdateDesignationDto,
@@ -60,33 +65,176 @@ export class CommonRestService {
     private readonly templateService: EmailTemplateService,
   ) {}
 
-  async createCategory(createCategories: CreateCategories) {
-    const exists = await this.db
-      .select()
-      .from(categoriesTable)
-      .where(
-        or(
-          eq(categoriesTable.slug, createCategories.slug),
-          eq(categoriesTable.name, createCategories.name),
-        ),
-      );
-
-    if (exists.length > 0) {
-      throw new ConflictException('Name or Slug already exists');
-    }
-
-    const newCategory = {
-      name: createCategories.name,
-      slug: createCategories.slug,
-      description: createCategories.description,
-    };
-
+  async createCategory(createCategoryDto: CreateCategoryDto) {
     try {
-      await this.db.insert(categoriesTable).values(newCategory);
+      const exists = await this.db
+        .select({ id: categoriesTable.id })
+        .from(categoriesTable)
+        .where(
+          or(
+            eq(categoriesTable.slug, createCategoryDto.slug),
+            eq(categoriesTable.name, createCategoryDto.name),
+          ),
+        );
 
-      return { message: 'Category created successfully' };
-    } catch (error) {
-      console.error('Error inserting post:', error);
+      if (exists.length > 0) {
+        throw new ConflictException('Name or Slug already exists');
+      }
+
+      const [category] = await this.db
+        .insert(categoriesTable)
+        .values({
+          name: createCategoryDto.name,
+          slug: createCategoryDto.slug,
+          ...(createCategoryDto.description !== undefined
+            ? { description: createCategoryDto.description }
+            : {}),
+          ...(createCategoryDto.status
+            ? { status: createCategoryDto.status }
+            : {}),
+        })
+        .returning();
+
+      if (!category) {
+        throw new Error('Category creation failed');
+      }
+
+      return category;
+    } catch (error: unknown) {
+      console.error('Error creating category:', error);
+      throw error;
+    }
+  }
+
+  async getCategories(query: GetCategoriesQueryDto) {
+    try {
+      const categories = await this.db
+        .select({
+          id: categoriesTable.id,
+          name: categoriesTable.name,
+          slug: categoriesTable.slug,
+          description: categoriesTable.description,
+          status: categoriesTable.status,
+          created_at: categoriesTable.created_at,
+          updated_at: categoriesTable.updated_at,
+        })
+        .from(categoriesTable)
+        .where(
+          and(
+            query.categoryid
+              ? eq(categoriesTable.id, query.categoryid)
+              : undefined,
+            query.search
+              ? or(
+                  ilike(categoriesTable.name, `%${query.search}%`),
+                  ilike(categoriesTable.slug, `%${query.search}%`),
+                )
+              : undefined,
+          ),
+        );
+
+      return categories;
+    } catch (error: unknown) {
+      console.error('Error fetching categories:', error);
+      throw error;
+    }
+  }
+
+  async updateCategory(id: string, updateCategoryDto: UpdateCategoryDto) {
+    try {
+      const hasUpdates = [
+        updateCategoryDto.name,
+        updateCategoryDto.slug,
+        updateCategoryDto.description,
+        updateCategoryDto.status,
+      ].some((field) => field !== undefined);
+
+      if (!hasUpdates) {
+        throw new BadRequestException('At least one field must be provided');
+      }
+
+      if (updateCategoryDto.name || updateCategoryDto.slug) {
+        const [conflict] = await this.db
+          .select({ id: categoriesTable.id })
+          .from(categoriesTable)
+          .where(
+            and(
+              or(
+                updateCategoryDto.name
+                  ? eq(categoriesTable.name, updateCategoryDto.name)
+                  : undefined,
+                updateCategoryDto.slug
+                  ? eq(categoriesTable.slug, updateCategoryDto.slug)
+                  : undefined,
+              ),
+              ne(categoriesTable.id, id),
+            ),
+          );
+
+        if (conflict) {
+          throw new ConflictException('Name or Slug already exists');
+        }
+      }
+
+      const [category] = await this.db
+        .update(categoriesTable)
+        .set({
+          ...(updateCategoryDto.name !== undefined
+            ? { name: updateCategoryDto.name }
+            : {}),
+          ...(updateCategoryDto.slug !== undefined
+            ? { slug: updateCategoryDto.slug }
+            : {}),
+          ...(updateCategoryDto.description !== undefined
+            ? { description: updateCategoryDto.description }
+            : {}),
+          ...(updateCategoryDto.status !== undefined
+            ? { status: updateCategoryDto.status }
+            : {}),
+          updated_at: new Date(),
+        })
+        .where(eq(categoriesTable.id, id))
+        .returning();
+
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+
+      return category;
+    } catch (error: unknown) {
+      console.error('Error updating category:', error);
+      throw error;
+    }
+  }
+
+  async deleteCategory(id: string) {
+    try {
+      return await this.db.transaction(async (tx) => {
+        const assignedPosts = await tx
+          .select({ post_id: postsCategoriesTable.post_id })
+          .from(postsCategoriesTable)
+          .where(eq(postsCategoriesTable.category_id, id))
+          .limit(1);
+
+        if (assignedPosts.length > 0) {
+          throw new ConflictException(
+            'Cannot delete a category assigned to posts',
+          );
+        }
+
+        const [deletedCategory] = await tx
+          .delete(categoriesTable)
+          .where(eq(categoriesTable.id, id))
+          .returning({ id: categoriesTable.id });
+
+        if (!deletedCategory) {
+          throw new NotFoundException('Category not found');
+        }
+
+        return { message: 'Category deleted successfully' };
+      });
+    } catch (error: unknown) {
+      console.error('Error deleting category:', error);
       throw error;
     }
   }

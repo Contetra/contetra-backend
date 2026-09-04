@@ -12,10 +12,14 @@ import {
 import { CommonRestService } from './common-rest.service';
 import {
   CreateAuthors,
-  CreateCategories,
   CreateContactCtac,
   CreateContactUs,
 } from './dto/create-common-rest.dto';
+import {
+  CreateCategoryDto,
+  GetCategoriesQueryDto,
+  UpdateCategoryDto,
+} from './dto/category.dto';
 import { CreateErpReadinessChecklistDto } from './dto/create-erp-readiness-checklist.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import {
@@ -45,8 +49,26 @@ export class CommonRestController {
   constructor(private readonly commonRestService: CommonRestService) {}
 
   @Post('create-category')
-  async createCategory(@Body() createCategories: CreateCategories) {
-    return this.commonRestService.createCategory(createCategories);
+  async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
+    return this.commonRestService.createCategory(createCategoryDto);
+  }
+
+  @Get('get-categories')
+  async getCategoriesAdmin(@Query() query: GetCategoriesQueryDto) {
+    return this.commonRestService.getCategories(query);
+  }
+
+  @Patch('update-categories/:id')
+  async updateCategory(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ) {
+    return this.commonRestService.updateCategory(id, updateCategoryDto);
+  }
+
+  @Delete('delete-categories/:id')
+  async deleteCategory(@Param('id', ParseUUIDPipe) id: string) {
+    return this.commonRestService.deleteCategory(id);
   }
 
   @Post('create-author')

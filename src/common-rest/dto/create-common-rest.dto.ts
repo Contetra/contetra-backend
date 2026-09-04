@@ -6,21 +6,6 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class CreateCategories {
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(1)
-  name: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(1)
-  slug: string;
-
-  @IsString()
-  description: string;
-}
-
 export class CreateAuthors {
   @IsUUID()
   @IsNotEmpty()
