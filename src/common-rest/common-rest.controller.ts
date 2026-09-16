@@ -88,6 +88,32 @@ export class CommonRestController {
     return this.commonRestService.getAllAuthors();
   }
 
+  @Get('homepage-blogs')
+  @Public()
+  async getHomepageBlogs(
+    @Query('limit') limit?: string,
+    @Query('categories') categories?: string | string[],
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+  ) {
+    const normalizedCategories = Array.isArray(categories)
+      ? categories
+      : categories
+        ? [categories]
+        : [];
+
+    const parsedLimit = limit ? Number(limit) : 6;
+    const safeLimit =
+      Number.isFinite(parsedLimit) && parsedLimit > 0
+        ? Math.min(parsedLimit, 50)
+        : 6;
+
+    return this.commonRestService.getHomepageBlogs(
+      normalizedCategories,
+      safeLimit,
+      sortOrder === 'asc' ? 'asc' : 'desc',
+    );
+  }
+
   @Get('get-authors')
   async getAuthorsList(@Query() query: GetAuthorsQueryDto) {
     return this.commonRestService.getAuthorsList(query);

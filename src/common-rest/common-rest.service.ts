@@ -20,13 +20,26 @@ import {
   formsTable,
   formSubmissionsTable,
   formTypesTable,
+  postsAuthorsTable,
   postsCategoriesTable,
+  postsTable,
   rolesTable,
   userDetailsTable,
   userRolesTable,
   userTable,
 } from 'src/common/drizzle/schema';
-import { and, eq, ilike, inArray, ne, or } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  ne,
+  or,
+  SQL,
+  sql,
+} from 'drizzle-orm';
 import { EMAIL_RECIPIENTS } from 'src/email/email-recipients';
 import { EmailService } from 'src/email/email.service';
 import { EmailTemplateService } from 'src/email/email-template.service';
@@ -350,6 +363,56 @@ export class CommonRestService {
       })
       .from(categoriesTable);
     return categories;
+  }
+
+  async getHomepageBlogs(
+    categories: string[] = [],
+    limit: number = 6,
+    sortOrder: 'asc' | 'desc' = 'desc',
+  ) {
+    const conditions: SQL[] = [eq(postsTable.status, 'Published')];
+
+    if (categories.length > 0) {
+      conditions.push(inArray(postsCategoriesTable.category_id, categories));
+    }
+
+    const orderDirection =
+      sortOrder === 'asc'
+        ? asc(postsTable.created_at)
+        : desc(postsTable.created_at);
+
+    return this.db
+      .select({
+        id: postsTable.id,
+        title: postsTable.title,
+        slug: postsTable.slug,
+        feature_image_url: postsTable.feature_image_url,
+        created_at: postsTable.created_at,
+        excerpt: postsTable.excerpt,
+
+        authors: sql<string[]>`
+        array_remove(array_agg(DISTINCT ${userTable.name}), NULL)
+      `.as('authors'),
+
+        categories: sql<string[]>`
+        array_remove(array_agg(DISTINCT ${categoriesTable.name}), NULL)
+      `.as('categories'),
+      })
+      .from(postsTable)
+      .leftJoin(postsAuthorsTable, eq(postsTable.id, postsAuthorsTable.post_id))
+      .leftJoin(userTable, eq(postsAuthorsTable.author_id, userTable.id))
+      .leftJoin(
+        postsCategoriesTable,
+        eq(postsTable.id, postsCategoriesTable.post_id),
+      )
+      .leftJoin(
+        categoriesTable,
+        eq(postsCategoriesTable.category_id, categoriesTable.id),
+      )
+      .where(and(...conditions))
+      .groupBy(postsTable.id)
+      .orderBy(orderDirection)
+      .limit(limit);
   }
 
   async getAllAuthors() {
