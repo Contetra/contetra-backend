@@ -15,6 +15,13 @@
       "when": 1788695339590,
       "tag": "0001_exotic_alex_wilder",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791565802592,
+      "tag": "0002_thin_leper_queen",
+      "breakpoints": true
     }
   ]
 }

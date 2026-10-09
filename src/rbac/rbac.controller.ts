@@ -16,10 +16,26 @@ import {
   UpdateRoleDto,
 } from './dto/roles.dto';
 import { CreateUserRoleDto, GetUserRolesQueryDto } from './dto/user-roles.dto';
+import { CheckPolicy } from 'src/common/decorators/check-policy.decorator';
+import { User } from 'src/common/decorators/user.decorator';
 
 @Controller('rbac')
 export class RbacController {
   constructor(private readonly rbacService: RbacService) {}
+
+  @Get('my-permissions')
+  async getMyPermissions(@User('userId') userId: string) {
+    return this.rbacService.getMyPermissions(userId);
+  }
+
+  // Proof-of-concept route for PolicyGuard — not a real feature route.
+  // See plan: real routes aren't gated this round (middlewareBaseQuery.ts
+  // treats 403 as a logout trigger, which would need fixing first).
+  @Get('_policy-guard-check')
+  @CheckPolicy('edit', 'admin_tab:rbac')
+  policyGuardCheck() {
+    return { ok: true };
+  }
 
   @Get('get-roles')
   async getRoles(@Query() query: GetRolesQueryDto) {

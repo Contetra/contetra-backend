@@ -1,0 +1,7 @@
+[
+  { "name": "admin_tab:dashboard", "description": "Admin panel Dashboard tab." },
+  { "name": "admin_tab:blog", "description": "Admin panel Blog tab." },
+  { "name": "admin_tab:emails", "description": "Admin panel Emails tab." },
+  { "name": "admin_tab:settings", "description": "Admin panel Settings tab." },
+  { "name": "admin_tab:rbac", "description": "Admin panel RBAC/policy management tab." }
+]

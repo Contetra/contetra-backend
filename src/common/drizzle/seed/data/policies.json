@@ -1,0 +1,56 @@
+[
+  {
+    "id": "981d462c-9f2a-40bb-8c31-538d838ff0c4",
+    "name": "view-admin-tab-dashboard",
+    "description": "Can see the Dashboard tab in the admin panel.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:dashboard",
+    "condition": "{}"
+  },
+  {
+    "id": "92b136eb-c458-411e-b64c-7959a5bbabd5",
+    "name": "view-admin-tab-blog",
+    "description": "Can see the Blog tab in the admin panel.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:blog",
+    "condition": "{}"
+  },
+  {
+    "id": "fe8da43c-032b-4636-a953-543f41913683",
+    "name": "view-admin-tab-emails",
+    "description": "Can see the Emails tab in the admin panel.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:emails",
+    "condition": "{}"
+  },
+  {
+    "id": "c3af5f8c-2af3-4f8a-ab75-4193f3bd3b4c",
+    "name": "view-admin-tab-settings",
+    "description": "Can see the Settings tab in the admin panel.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:settings",
+    "condition": "{}"
+  },
+  {
+    "id": "5cbf3909-5baa-42ba-ab93-067be960a799",
+    "name": "view-admin-tab-rbac",
+    "description": "Can see the RBAC tab in the admin panel.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:rbac",
+    "condition": "{}"
+  },
+  {
+    "id": "c52210a7-2791-4e56-86cc-0bfa42ed1b33",
+    "name": "edit-admin-tab-rbac",
+    "description": "Can manage RBAC/policy configuration in the admin panel.",
+    "effect": "allow",
+    "action": "edit",
+    "resource_type": "admin_tab:rbac",
+    "condition": "{}"
+  }
+]

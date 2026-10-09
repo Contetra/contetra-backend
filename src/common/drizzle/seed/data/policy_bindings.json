@@ -1,0 +1,9 @@
+[
+  { "policy_name": "view-admin-tab-dashboard", "role_name": "admin" },
+  { "policy_name": "view-admin-tab-blog", "role_name": "admin" },
+  { "policy_name": "view-admin-tab-emails", "role_name": "admin" },
+  { "policy_name": "view-admin-tab-settings", "role_name": "admin" },
+  { "policy_name": "view-admin-tab-rbac", "role_name": "admin" },
+  { "policy_name": "edit-admin-tab-rbac", "role_name": "admin" },
+  { "policy_name": "view-admin-tab-blog", "role_name": "author" }
+]

@@ -1,1 +1,0 @@
-ALTER TABLE "categories" ADD COLUMN "status" varchar(50) DEFAULT 'Published' NOT NULL;

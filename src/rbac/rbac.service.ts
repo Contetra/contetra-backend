@@ -19,10 +19,21 @@ import {
   UpdateRoleDto,
 } from './dto/roles.dto';
 import { CreateUserRoleDto, GetUserRolesQueryDto } from './dto/user-roles.dto';
+import { PolicyService } from './policy.service';
+import { ADMIN_TAB_RESOURCE_TYPES } from './admin-tabs.constants';
 
 @Injectable()
 export class RbacService {
-  constructor(@Inject(DRIZZLE) private readonly db: NodePgDatabase) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: NodePgDatabase,
+    private readonly policyService: PolicyService,
+  ) {}
+
+  async getMyPermissions(userId: string) {
+    return this.policyService.canMany(userId, 'view', [
+      ...ADMIN_TAB_RESOURCE_TYPES,
+    ]);
+  }
 
   async getRoles(query: GetRolesQueryDto) {
     try {

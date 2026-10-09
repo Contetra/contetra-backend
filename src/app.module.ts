@@ -7,6 +7,7 @@ import { PostsModule } from './posts/posts.module';
 import { MyLoggerModule } from './my-logger/my-logger.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/jwt-auth.gaurd';
+import { PolicyGuard } from './common/guards/policy.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { CommonRestModule } from './common-rest/common-rest.module';
 import { EmailModule } from './email/email.module';
@@ -38,6 +39,10 @@ import { RbacModule } from './rbac/rbac.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PolicyGuard,
     },
   ],
 })

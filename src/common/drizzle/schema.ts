@@ -418,18 +418,28 @@ export const userAttributesTable = pgTable('user_attributes', {
     .notNull(),
 });
 
-export const policiesTable = pgTable('policies', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: varchar('name', { length: 100 }).notNull(),
-  description: text('description'),
-  effect: varchar('effect', { enum: ['allow', 'deny'], length: 10 }).notNull(),
-  action: varchar('action', { length: 100 }).notNull(), // e.g., "read", "edit", "delete", "view_button"
-  resource_type: varchar('resource_type', { length: 50 }).notNull(), // e.g., "page", "post"
-  condition: text('condition').notNull(), // JSON logic, e.g. {"user.department": "marketing", "resource.status": "published"}
-  created_at: timestamp('created_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const policiesTable = pgTable(
+  'policies',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', { length: 100 }).notNull(),
+    description: text('description'),
+    effect: varchar('effect', { enum: ['allow', 'deny'], length: 10 }).notNull(),
+    action: varchar('action', { length: 100 }).notNull(), // e.g., "read", "edit", "delete", "view_button"
+    resource_type: varchar('resource_type', { length: 50 }).notNull(), // e.g., "page", "post"
+    condition: text('condition').notNull(), // JSON logic, e.g. {"user.department": "marketing", "resource.status": "published"}
+    created_at: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      policiesActionResourceTypeIndex: index(
+        'policiesActionResourceTypeIndex',
+      ).on(table.action, table.resource_type),
+    };
+  },
+);
 
 export const actionsTable = pgTable('actions', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -443,14 +453,31 @@ export const resourceTypesTable = pgTable('resource_types', {
   description: text('description'),
 });
 
-export const policyBindingsTable = pgTable('policy_bindings', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  policy_id: uuid('policy_id')
-    .references(() => policiesTable.id)
-    .notNull(),
-  user_id: uuid('user_id').references(() => userTable.id), // optional
-  resource_id: uuid('resource_id'), // optional
-});
+export const policyBindingsTable = pgTable(
+  'policy_bindings',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    policy_id: uuid('policy_id')
+      .references(() => policiesTable.id)
+      .notNull(),
+    user_id: uuid('user_id').references(() => userTable.id), // optional
+    role_id: uuid('role_id').references(() => rolesTable.id), // optional — binds a policy to everyone holding this role
+    resource_id: uuid('resource_id'), // optional — reserved for future row-level resource permissions
+  },
+  (table) => {
+    return {
+      policyBindingsPolicyIdIndex: index('policyBindingsPolicyIdIndex').on(
+        table.policy_id,
+      ),
+      policyBindingsUserIdIndex: index('policyBindingsUserIdIndex').on(
+        table.user_id,
+      ),
+      policyBindingsRoleIdIndex: index('policyBindingsRoleIdIndex').on(
+        table.role_id,
+      ),
+    };
+  },
+);
 
 export const accessLogsTable = pgTable('access_logs', {
   id: uuid('id').primaryKey().defaultRandom(),

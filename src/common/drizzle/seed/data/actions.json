@@ -1,0 +1,6 @@
+[
+  { "name": "view", "description": "Can see/view the resource." },
+  { "name": "edit", "description": "Can create or modify the resource." },
+  { "name": "delete", "description": "Can delete the resource." },
+  { "name": "download", "description": "Can download/export the resource." }
+]

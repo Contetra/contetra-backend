@@ -19,6 +19,10 @@ import {
   formTypesTable,
   formsTable,
   formSubmissionsTable,
+  actionsTable,
+  resourceTypesTable,
+  policiesTable,
+  policyBindingsTable,
 } from '../schema';
 
 // Default login password for every seeded user. Real password hashes are
@@ -117,6 +121,18 @@ type FormSubmissionRow = {
   payload: Record<string, unknown> | null;
   created_at: string;
 };
+type ActionRow = { name: string; description: string | null };
+type ResourceTypeRow = { name: string; description: string | null };
+type PolicyRow = {
+  id: string;
+  name: string;
+  description: string | null;
+  effect: 'allow' | 'deny';
+  action: string;
+  resource_type: string;
+  condition: string;
+};
+type PolicyBindingRow = { policy_name: string; role_name: string };
 
 async function main() {
   const pool = new Pool({
@@ -190,6 +206,73 @@ async function main() {
         await db.insert(userRolesTable).values(rows).onConflictDoNothing();
       }
       console.log(`  user_roles: ${rows.length}`);
+    }
+
+    const actions = loadJson<ActionRow[]>('actions.json');
+    if (actions.length) {
+      await db.insert(actionsTable).values(actions).onConflictDoNothing();
+      console.log(`  actions: ${actions.length}`);
+    }
+
+    const resourceTypes = loadJson<ResourceTypeRow[]>('resource_types.json');
+    if (resourceTypes.length) {
+      await db
+        .insert(resourceTypesTable)
+        .values(resourceTypes)
+        .onConflictDoNothing();
+      console.log(`  resource_types: ${resourceTypes.length}`);
+    }
+
+    const policies = loadJson<PolicyRow[]>('policies.json');
+    if (policies.length) {
+      await db.insert(policiesTable).values(policies).onConflictDoNothing();
+      console.log(`  policies: ${policies.length}`);
+    }
+
+    const policyBindings = loadJson<PolicyBindingRow[]>(
+      'policy_bindings.json',
+    );
+    if (policyBindings.length) {
+      // policy_bindings has no natural unique constraint (unlike user_roles),
+      // so re-seeding must check for existing rows itself to stay idempotent.
+      const allPolicies = await db
+        .select({ id: policiesTable.id, name: policiesTable.name })
+        .from(policiesTable);
+      const policyIdByName = new Map(allPolicies.map((p) => [p.name, p.id]));
+
+      const allRoles = await db
+        .select({ id: rolesTable.id, name: rolesTable.name })
+        .from(rolesTable);
+      const roleIdByName = new Map(allRoles.map((r) => [r.name, r.id]));
+
+      const existingBindings = await db
+        .select({
+          policy_id: policyBindingsTable.policy_id,
+          role_id: policyBindingsTable.role_id,
+        })
+        .from(policyBindingsTable);
+      const existingKeys = new Set(
+        existingBindings
+          .filter((b) => b.role_id !== null)
+          .map((b) => `${b.policy_id}:${b.role_id}`),
+      );
+
+      const rows = policyBindings
+        .map((pb) => ({
+          policy_id: policyIdByName.get(pb.policy_name),
+          role_id: roleIdByName.get(pb.role_name),
+        }))
+        .filter(
+          (r): r is { policy_id: string; role_id: string } =>
+            !!r.policy_id &&
+            !!r.role_id &&
+            !existingKeys.has(`${r.policy_id}:${r.role_id}`),
+        );
+
+      if (rows.length) {
+        await db.insert(policyBindingsTable).values(rows);
+      }
+      console.log(`  policy_bindings: ${rows.length}`);
     }
 
     const categories = loadJson<CategoryRow[]>('categories.json');
