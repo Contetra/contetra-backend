@@ -16,6 +16,7 @@ import {
   UpdateRoleDto,
 } from './dto/roles.dto';
 import { CreateUserRoleDto, GetUserRolesQueryDto } from './dto/user-roles.dto';
+import { CreatePolicyBindingDto } from './dto/policy-bindings.dto';
 import { CheckPolicy } from 'src/common/decorators/check-policy.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 
@@ -35,6 +36,29 @@ export class RbacController {
   @CheckPolicy('edit', 'admin_tab:rbac')
   policyGuardCheck() {
     return { ok: true };
+  }
+
+  // Not @CheckPolicy-gated on purpose: this is how a logged-in admin grants
+  // permissions in the first place, including recovering their own access,
+  // so it can't require a permission to reach it.
+  @Get('get-policies')
+  async getPolicies() {
+    return this.rbacService.getPolicies();
+  }
+
+  @Get('get-policy-bindings')
+  async getPolicyBindings() {
+    return this.rbacService.getPolicyBindings();
+  }
+
+  @Post('post-policy-bindings')
+  async createPolicyBinding(@Body() dto: CreatePolicyBindingDto) {
+    return this.rbacService.createPolicyBinding(dto);
+  }
+
+  @Delete('delete-policy-bindings/:id')
+  async deletePolicyBinding(@Param('id', ParseUUIDPipe) id: string) {
+    return this.rbacService.deletePolicyBinding(id);
   }
 
   @Get('get-roles')

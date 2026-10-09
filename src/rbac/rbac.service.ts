@@ -11,6 +11,8 @@ import {
   rolesTable,
   userRolesTable,
   userTable,
+  policiesTable,
+  policyBindingsTable,
 } from 'src/common/drizzle/schema';
 import { and, eq, ilike } from 'drizzle-orm';
 import {
@@ -19,6 +21,7 @@ import {
   UpdateRoleDto,
 } from './dto/roles.dto';
 import { CreateUserRoleDto, GetUserRolesQueryDto } from './dto/user-roles.dto';
+import { CreatePolicyBindingDto } from './dto/policy-bindings.dto';
 import { PolicyService } from './policy.service';
 import { ADMIN_TAB_RESOURCE_TYPES } from './admin-tabs.constants';
 
@@ -33,6 +36,89 @@ export class RbacService {
     return this.policyService.canMany(userId, 'view', [
       ...ADMIN_TAB_RESOURCE_TYPES,
     ]);
+  }
+
+  async getPolicies() {
+    try {
+      return await this.db.select().from(policiesTable);
+    } catch (error: unknown) {
+      console.error('Error fetching policies:', error);
+      throw error;
+    }
+  }
+
+  async getPolicyBindings() {
+    try {
+      return await this.db
+        .select({
+          id: policyBindingsTable.id,
+          policy_id: policyBindingsTable.policy_id,
+          policy_name: policiesTable.name,
+          action: policiesTable.action,
+          resource_type: policiesTable.resource_type,
+          effect: policiesTable.effect,
+          user_id: policyBindingsTable.user_id,
+          user_email: userTable.email,
+          role_id: policyBindingsTable.role_id,
+          role_name: rolesTable.name,
+        })
+        .from(policyBindingsTable)
+        .innerJoin(
+          policiesTable,
+          eq(policyBindingsTable.policy_id, policiesTable.id),
+        )
+        .leftJoin(userTable, eq(policyBindingsTable.user_id, userTable.id))
+        .leftJoin(rolesTable, eq(policyBindingsTable.role_id, rolesTable.id));
+    } catch (error: unknown) {
+      console.error('Error fetching policy bindings:', error);
+      throw error;
+    }
+  }
+
+  async createPolicyBinding(dto: CreatePolicyBindingDto) {
+    try {
+      if (!dto.user_id && !dto.role_id) {
+        throw new BadRequestException(
+          'Provide either a user_id or a role_id to grant this permission to.',
+        );
+      }
+
+      const [binding] = await this.db
+        .insert(policyBindingsTable)
+        .values({
+          policy_id: dto.policy_id,
+          user_id: dto.user_id,
+          role_id: dto.role_id,
+        })
+        .returning();
+
+      if (!binding) {
+        throw new Error('Policy binding creation failed');
+      }
+
+      return binding;
+    } catch (error: unknown) {
+      console.error('Error creating policy binding:', error);
+      throw error;
+    }
+  }
+
+  async deletePolicyBinding(id: string) {
+    try {
+      const [deleted] = await this.db
+        .delete(policyBindingsTable)
+        .where(eq(policyBindingsTable.id, id))
+        .returning({ id: policyBindingsTable.id });
+
+      if (!deleted) {
+        throw new NotFoundException('Policy binding not found');
+      }
+
+      return { message: 'Policy binding removed successfully' };
+    } catch (error: unknown) {
+      console.error('Error deleting policy binding:', error);
+      throw error;
+    }
   }
 
   async getRoles(query: GetRolesQueryDto) {
