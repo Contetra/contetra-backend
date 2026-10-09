@@ -52,5 +52,95 @@
     "action": "edit",
     "resource_type": "admin_tab:rbac",
     "condition": "{}"
+  },
+  {
+    "id": "fd397d2d-953f-4bc9-9c25-d76eb670a1cc",
+    "name": "view-admin-tab-blog-all-blogs",
+    "description": "Can see Blog -> All Blogs.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:blog:all-blogs",
+    "condition": "{}"
+  },
+  {
+    "id": "3f74d1c4-7c82-4328-b103-8789f467a930",
+    "name": "view-admin-tab-blog-add-a-new-blog",
+    "description": "Can see Blog -> Add a new blog.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:blog:add-a-new-blog",
+    "condition": "{}"
+  },
+  {
+    "id": "678acc8c-653f-4ec2-a337-e3e5b0dd01f8",
+    "name": "view-admin-tab-blog-authors",
+    "description": "Can see Blog -> Authors.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:blog:authors",
+    "condition": "{}"
+  },
+  {
+    "id": "c7295e9c-5f03-49e1-8ed1-04e771f0f16a",
+    "name": "view-admin-tab-blog-categories",
+    "description": "Can see Blog -> Categories.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:blog:categories",
+    "condition": "{}"
+  },
+  {
+    "id": "327c5834-a797-42e9-9106-cc6cc3ca9b83",
+    "name": "view-admin-tab-emails-all-emails",
+    "description": "Can see Emails -> All Emails.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:emails:all-emails",
+    "condition": "{}"
+  },
+  {
+    "id": "0940c963-495a-476a-83ba-0028e6ef4eed",
+    "name": "view-admin-tab-settings-forms",
+    "description": "Can see Settings -> Forms.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:settings:forms",
+    "condition": "{}"
+  },
+  {
+    "id": "09c3029d-3cb0-4cb4-8701-9185d844ebdb",
+    "name": "view-admin-tab-settings-form-types",
+    "description": "Can see Settings -> Form Types.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:settings:form-types",
+    "condition": "{}"
+  },
+  {
+    "id": "767fa472-50e5-416f-9901-3111a4276217",
+    "name": "view-admin-tab-settings-team",
+    "description": "Can see Settings -> Team.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:settings:team",
+    "condition": "{}"
+  },
+  {
+    "id": "e2cd78ee-e5e3-44c3-80f9-6d30431a5c30",
+    "name": "view-admin-tab-settings-departments",
+    "description": "Can see Settings -> Departments.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:settings:departments",
+    "condition": "{}"
+  },
+  {
+    "id": "bab58ceb-da4f-4f6f-b370-d5f1306a8bcc",
+    "name": "view-admin-tab-settings-designations",
+    "description": "Can see Settings -> Designations.",
+    "effect": "allow",
+    "action": "view",
+    "resource_type": "admin_tab:settings:designations",
+    "condition": "{}"
   }
 ]

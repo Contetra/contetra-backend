@@ -29,6 +29,13 @@
       "when": 1791567816612,
       "tag": "0003_seed_abac_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791570010603,
+      "tag": "0004_seed_subtab_policies",
+      "breakpoints": true
     }
   ]
 }

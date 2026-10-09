@@ -3,5 +3,15 @@
   { "name": "admin_tab:blog", "description": "Admin panel Blog tab." },
   { "name": "admin_tab:emails", "description": "Admin panel Emails tab." },
   { "name": "admin_tab:settings", "description": "Admin panel Settings tab." },
-  { "name": "admin_tab:rbac", "description": "Admin panel RBAC/policy management tab." }
+  { "name": "admin_tab:rbac", "description": "Admin panel RBAC/policy management tab." },
+  { "name": "admin_tab:blog:all-blogs", "description": "Blog sub-tab: All Blogs." },
+  { "name": "admin_tab:blog:add-a-new-blog", "description": "Blog sub-tab: Add a new blog." },
+  { "name": "admin_tab:blog:authors", "description": "Blog sub-tab: Authors." },
+  { "name": "admin_tab:blog:categories", "description": "Blog sub-tab: Categories." },
+  { "name": "admin_tab:emails:all-emails", "description": "Emails sub-tab: All Emails." },
+  { "name": "admin_tab:settings:forms", "description": "Settings sub-tab: Forms." },
+  { "name": "admin_tab:settings:form-types", "description": "Settings sub-tab: Form Types." },
+  { "name": "admin_tab:settings:team", "description": "Settings sub-tab: Team." },
+  { "name": "admin_tab:settings:departments", "description": "Settings sub-tab: Departments." },
+  { "name": "admin_tab:settings:designations", "description": "Settings sub-tab: Designations." }
 ]

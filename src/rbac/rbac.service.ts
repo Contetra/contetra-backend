@@ -23,7 +23,7 @@ import {
 import { CreateUserRoleDto, GetUserRolesQueryDto } from './dto/user-roles.dto';
 import { CreatePolicyBindingDto } from './dto/policy-bindings.dto';
 import { PolicyService } from './policy.service';
-import { ADMIN_TAB_RESOURCE_TYPES } from './admin-tabs.constants';
+import { ALL_ADMIN_RESOURCE_TYPES } from './admin-tabs.constants';
 
 @Injectable()
 export class RbacService {
@@ -34,7 +34,7 @@ export class RbacService {
 
   async getMyPermissions(userId: string) {
     return this.policyService.canMany(userId, 'view', [
-      ...ADMIN_TAB_RESOURCE_TYPES,
+      ...ALL_ADMIN_RESOURCE_TYPES,
     ]);
   }
 
